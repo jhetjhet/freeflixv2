@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FreeFlix</title>
+</head>
+<body>
+	<div>
+		<h1>...............................</h1>
+	</div>
+
+	<script type="text/javascript">
+		window.onload = () => {
+			var socket = new WebSocket(`ws://${window.location.host}/ws/flix/feeds/614696/`);
+			socket.onopen = () => {
+				console.log('Connected !!!');
+				socket.send({
+					'type': 'test_message',
+					'data': 'asdasdasdasdasdasdasd',
+				});
+			}
+			socket.onmessage = (e) => {
+				console.log(`[message] ${e.data}`);
+			}
+			socket.onclose = (e) => {
+				if(e.wasClean)
+					console.log(event.reason);
+				else
+					console.error('Connection Died.');
+			}
+			socket.onerror = (e) => {
+				console.error(e.message);
+			}
+		}
+	</script>
+</body>
+</html>

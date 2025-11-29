@@ -1,0 +1,6 @@
+freeflix-react/
+node-media-server/
+nginx-server/
+staticfiles/
+media/
+*.sqlite3

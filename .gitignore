@@ -1,0 +1,50 @@
+# Environment variables
+*.env
+
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+*.pot
+*.log
+dist/
+build/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django
+*.sqlite3
+/media
+/staticfiles
+.coverage
+htmlcov/
+
+# Node/npm
+node_modules/
+npm-debug.log*
+yarn-error.log*
+/node-media-server/media
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Testing
+.pytest_cache/
+.tox/
+
+# Virtual environments
+venv/
+ENV/
+env/

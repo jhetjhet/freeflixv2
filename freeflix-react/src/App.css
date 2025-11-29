@@ -1,0 +1,504 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  color: #f2f2f2;
+}
+
+html, body, #root {
+  height: 100%;
+  background-color: black;
+}
+
+body {
+  font-family: Arial, Helvatica, sans-serif;
+  line-height: 1.4;
+  box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.main-container {
+  min-height: 100vh;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.inner-container {
+  transform: translateY(50px);
+  min-height: calc(100vh - 50px);
+}
+
+.btn-none {
+  background: none;
+  outline: none;
+  padding: 0;
+}
+
+.btn-none:focus {
+  outline: none;
+}
+
+.h-auto {
+  height: auto;
+}
+
+.w-auto {
+  width: auto;
+}
+
+/*button*/
+.btn {
+  padding: 0 0.2em;
+  margin: 0;
+}
+
+.btn-flix {
+  color: white;
+  background-color: #E50914;
+}
+/*button end*/
+
+/*Background*/
+.main-background {
+  background-image: url("https://images.pexels.com/photos/1097456/pexels-photo-1097456.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940");
+  filter: blur(8px);
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: -1;
+  transform: translateY(-164px);
+}
+
+.bg-black {
+  background-color: black;
+}
+
+.bg-white {
+  background-color: white;
+}
+/*Background End*/
+
+/*Text*/
+.lg-text {
+  font-size: 1.5rem;
+}
+
+.md-text {
+  font-size: 0.8rem;
+}
+
+.sm-text {
+  font-size: 0.6rem;
+}
+
+.xm-text {
+  font-size: 0.5rem;
+}
+
+.text-flix {
+  color: #E50914;
+}
+/*Text End*/
+
+/*Border*/
+.border-flix {
+  border-color: #E50914 !important;
+}
+/*Border End*/
+
+/*Navbar*/
+nav {
+  height: 46px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+#logo {
+  width: 116px;
+}
+/*Navbar end*/
+
+/*Footer*/
+footer {
+  text-align: center;
+}
+
+footer div {
+  margin-top: 1em;
+  border-top: 1px solid rgba(229, 9, 20, 0.2);
+}
+
+footer .freeflix-ft {
+  font-weight: bolder;
+}
+/*Footer End*/
+
+
+/*ListFlix*/
+.dropdown-item {
+  color: white;
+}
+
+.dropdown-menu {
+  max-height: 256px;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 512px;
+  margin: 0 2.5em;
+  padding-left: 0.5em;
+  border-bottom: 1px solid #E50914;
+}
+
+.search-bar input {
+  background-color: inherit;
+  color: white;
+}
+
+.search-bar input:focus {
+  outline: none;
+}
+
+.search-bar button {
+  color: #E50914;
+  background-color: rgba(255, 255, 255, 0.2);
+  float: right;
+  margin-left: 0.5em;
+}
+
+.search-bar button:focus {
+  outline: none;
+  background-color: rgba(229, 9, 20, 0.2);
+}
+
+.search-bar button svg {
+  margin: 2px 6px;
+}
+/*ListFlix End*/
+
+/*Flix Detal*/
+.backdrop-imgs {
+  height: 256px;
+  overflow-x: auto;
+}
+
+.credit-holder {
+  border-left: 6px solid rgba(229, 9, 20, 0.2);
+  padding-left: 0.2em;
+  max-height: 356px;
+}
+
+.credit-holder .casts {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.credit {
+  font-size: 0.6em;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 0.2em 0.4em;
+  margin: 0.2em 0;
+}
+
+.credit .profile {
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  width: 46px;
+  height: 46px;
+  margin-right: 0.5em;
+}
+
+.credit .profile img {
+  width: 46px;
+  height: 46px;
+  position: absolute;
+  left: 0;
+  object-fit: cover;
+}
+/*Flix Detail End*/
+
+/*FlixPlayer*/
+.videoplayer video {
+  width: 100%;
+  height: 456px;
+}
+
+/*FlixPlayer End*/
+
+
+
+
+
+
+
+
+
+
+
+
+/*Movie Card*/
+.card {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  outline: none;
+  padding: 0px;
+}
+
+.card-body {
+  padding: 6px;
+}
+
+.card-text {
+  padding: 0 6px;
+}
+
+.movie-card-title {
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.movie-card-year {
+  color: #cecece;
+  font-size: 0.6rem;
+}
+
+.movie-card-genre {
+  color: white;
+}
+
+.movie-card-view-btn {
+  color: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background-color: #E50914;
+  padding: 0.3rem;
+}
+
+.movie-card-poster-cont {
+  position: relative;
+  border: 6px solid white;
+}
+
+.movie-card-overlay {
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+}
+
+.movie-card-overlay div{
+  width: 100%;
+  height: 100%;
+}
+
+.movie-card-poster:hover .movie-card-poster-cont {
+  border: 6px solid #E50914;
+}
+
+.movie-card-poster:hover .movie-card-overlay {
+  opacity: 1;
+}
+
+.bi-star-fill {
+  color: #E50914;
+}
+
+.movie-card-ratings {
+  color: white;
+  font-size: 0.5rem;
+}
+/*Movie Card end*/
+
+/*Home*/
+.home-header {
+  text-align: center;
+}
+/*Home End*/
+
+/*Flix Create*/
+.base-header {
+  height: 30%;
+}
+
+.flix-create {
+  width: 100%;
+  max-width: 556px;
+}
+
+.create-selection-cont {
+  height: 32px;
+  border: 1px solid #E50914;
+}
+
+.selection-item {
+  cursor: pointer;
+  background-color: black;
+  width: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+  font-weight: bold;
+
+  border-top: 1px solid grey;
+  border-left: 1px solid grey;
+  border-bottom: 1px solid white;
+  border-right: 1px solid white;
+}
+
+.tmdb-picker input {
+  color: black;
+}
+
+.tmdb-picker input:focus {
+  outline: none;
+}
+/*Flix Create End*/
+
+/*TMDBPicker*/
+.tmdb-results {
+  min-height: 32px;
+  max-height: 60vh;
+  background-color: rgba(229, 9, 20, 0.2);
+  overflow-y: auto;
+}
+
+.tmdb-result-item {
+  height: 192px;
+  background-color: black;
+  margin: 5px 20px;
+}
+
+.tmdb-item-overview {
+  overflow-y: auto;
+}
+
+.tmdb-load-btn {
+  width: 164px;
+  border: 1px solid  #01b4e4;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding-inline: 0.5rem;
+  padding-block: 0;
+  position: relative;
+}
+
+.tmdb-btn-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+/*TMDBPicker End*/
+
+/*MovieFormHolder*/
+.movie-form-holder {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+/*MovieFormHolder End*/
+
+/*SeriesFormHolder*/
+.series-form-holder {
+  background-color: black;
+  box-shadow: 0 0.2em 18px red;
+}
+/*SeriesFormHolder End*/
+
+/*FlixForm*/
+.flix-form {
+  position: relative;
+  overflow: hidden;
+}
+
+.flix-form * {
+  color: black;
+}
+
+.flix-form input {
+  background-color: inherit;
+}
+
+.flix-del-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.flix-form-title {
+  color: #E50914;
+  font-weight: bold;
+}
+
+.upload-progress-cont {
+  width: 100%;
+  height: 100%;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  /* top: 95%; */
+  /* left: 0; */
+}
+
+.upload-progress-cont .progress {
+}
+
+.upload-progress-cont .progress .progress-bar {
+  background-color: #E50914;
+}
+
+.flix-type-patch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 0.6rem;
+  color: white;
+  padding: 0 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.flix-type-patch span {
+  color: white;
+}
+/*FlixForm End*/
+
+
+/*Media Responsive*/
+/*Medium*/
+@media(max-width: 768px) {
+  /* .movie-card p{
+    font-size: 50%;
+  } */
+  /* .movie-card span {
+    font-size: 80%;
+  } */
+  .movie-card-view-btn {
+    display: none;
+  }
+}
+
+/*small*/
+@media(max-width: 576px) {
+  /* .movie-card-overlay {
+    display: none;
+  } */
+}
+/*Media Responsive End*/

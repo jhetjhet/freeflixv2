@@ -1,0 +1,4 @@
+node_modules/
+media/
+*.sqlite3
+.gitignore
