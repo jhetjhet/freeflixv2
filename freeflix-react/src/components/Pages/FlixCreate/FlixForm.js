@@ -37,9 +37,14 @@ class FlixForm extends React.Component {
 		this.submitFlix = this.submitFlix.bind(this);
 		this.patchFlix = this.patchFlix.bind(this);
 		this.delFlix = this.delFlix.bind(this);
+		this.fetchFlix = this.fetchFlix.bind(this);
 	}
 
 	async componentDidMount() {
+		this.fetchFlix();
+	}
+
+	fetchFlix() {
 		this.setState({ isGetFlixLoading: true });
 
 		axios.get(this.flixUrl).then(resp => {
@@ -204,6 +209,7 @@ class FlixForm extends React.Component {
 						episodeNumber={episodeNumber}
 						onFinish={() => {
 							this.setState({ video: null, subt: null, cancelToken: null, percentProgress: 0 });
+							this.fetchFlix();
 						}}
 					>
 						{({
