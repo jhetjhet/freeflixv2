@@ -109,7 +109,7 @@ class TMDBPicker extends React.Component {
 			<div className="tmdb-picker">
 				<form onSubmit={this.loadTmdb}>
 					<div className="w-100 d-flex mb-2">
-						<input type="text" className="w-100 px-2 py-1 rounded-left" onChange={this.onTitleInputChange} value={this.state.title} />
+						<input placeholder="Search for a movie or series" type="text" className="w-100 px-2 py-1 rounded-left" onChange={this.onTitleInputChange} value={this.state.title} />
 						<Button 
 							type="submit"
 							className="tmdb-load-btn"
