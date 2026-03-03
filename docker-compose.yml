@@ -1,0 +1,67 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - freeflix_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./freeflix-react
+    depends_on:
+      - backend
+      - node_backend
+    
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    volumes:
+      - ${MEDIA_ROOT}:/app/media
+
+  node_backend:
+    build:
+      context: ./node-media-server
+    container_name: freeflix-node-backend
+    depends_on:
+      - backend
+    volumes:
+      - ${MEDIA_ROOT}:/app/media
+    environment:
+      - PORT=8080
+      - DJANGO_URL_PATH=http://backend:8000
+      - ENV_MODE=production
+    expose:
+      - 8080
+
+  web_server:
+    image: nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - node_backend
+      - frontend
+    container_name: freelix-nginx-container
+    volumes:
+      - ./nginx-server/includes:/etc/nginx/includes
+      - ${MEDIA_ROOT}:/usr/share/nginx/media
+      - frontend_build:/usr/share/nginx/html
+    ports:
+      - 80:80
+
+volumes:
+  freeflix_mysql_data:
+  frontend_build:

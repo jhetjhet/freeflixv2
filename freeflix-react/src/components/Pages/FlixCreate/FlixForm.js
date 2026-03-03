@@ -221,7 +221,7 @@ class FlixForm extends React.Component {
 									<div className="d-flex flex-column w-100 pr-2">
 										<div className="d-flex">
 											<span className="md-text">Video: </span>
-											<input className="md-text w-100" type="text" disabled value={flix?.video_path_exists ? flix?.video_path : 'No video uploaded yet.'} />
+											<input className="md-text w-100" type="text" disabled value={vidName || 'No video uploaded yet.'} />
 										</div>
 									</div>
 									<div className="ml-auto mt-auto d-flex">

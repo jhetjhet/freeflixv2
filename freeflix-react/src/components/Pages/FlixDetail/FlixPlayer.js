@@ -5,7 +5,7 @@ const VideoPlayer = ({ video_url, subtitles = [] }) => {
 
 	const tracks = useMemo(() => subtitles.map(sub => ({
 		kind: 'subtitles',
-		src: sub.subtitle_url,
+		src: process.env.REACT_APP_MEDIA_URL + sub.subtitle_url,
 		label: sub.name,
 		srcLang: sub.srclng,
 		default: sub.is_default,
@@ -21,9 +21,6 @@ const VideoPlayer = ({ video_url, subtitles = [] }) => {
 				url={video_url}
 				controls={true}
 				config={{
-					attributes: {
-						crossOrigin: true,
-					},
 					file: {
 						tracks: tracks,
 					},
@@ -47,7 +44,7 @@ export const MoviePlayer = ({ video_url = "", subtitles = [] }) => {
 				}}
 			>
 				{video_url ? (
-					<VideoPlayer video_url={`${window.location.origin}/${video_url}`} subtitles={subtitles} />
+					<VideoPlayer video_url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`} subtitles={subtitles} />
 				) : (
 					<div style={{ minHeight: '360px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 						<p>No video available.</p>

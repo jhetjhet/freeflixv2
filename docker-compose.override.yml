@@ -1,0 +1,55 @@
+services:
+  frontend:
+    build:
+      context: ./freeflix-react
+    container_name: freeflix-frontend-dev
+    develop:
+      watch:
+        - action: sync
+          path: ./freeflix-react
+          target: /app
+          initial_sync: true
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./freeflix-react/package.json
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    command: ["npm", "start"]
+  
+  backend:
+    container_name: freeflix-backend-dev
+    env_file:
+      - .env
+    develop:
+      watch:
+        - action: sync
+          path: .
+          initial_sync: true
+          target: /app
+    ports:
+      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+
+  node_backend:
+    container_name: freeflix-node-backend-dev
+    environment:
+      - ENV_MODE=development
+    ports:
+      - "8080:8080"
+    develop:
+      watch:
+        - action: sync
+          path: ./node-media-server
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./node-media-server/package.json
+    command: node index.js
+
+  web_server:
+    volumes:
+      - ./nginx-server/config.dev.conf:/etc/nginx/conf.d/default.conf

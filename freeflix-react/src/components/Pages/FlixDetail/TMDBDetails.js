@@ -18,11 +18,13 @@ const TMDBDetails = ({
 	return (
 		<div className="container">
 			<div className="row justify-content-center">
-				<div className="col-xl-3 col-lg-3 col-md-4 col-sm-4 col-8">
-					<div className="rounded p-1 bg-light w-100">
-						<img className="w-100" src={`${process.env.REACT_APP_TMDB_IMAGE_BASE_URL}${poster_path}`} alt={`${title}:(POSTER)`} />
+				{poster_path && (
+					<div className="col-xl-3 col-lg-3 col-md-4 col-sm-4 col-8">
+						<div className="rounded p-1 bg-light w-100">
+							<img className="w-100" src={`${process.env.REACT_APP_TMDB_IMAGE_BASE_URL}${poster_path}`} alt={`${title}:(POSTER)`} />
+						</div>
 					</div>
-				</div>
+				)}
 				<div className="col-sm-6">
 					<div className="d-flex flex-column">
 						<h1>{title}</h1>
