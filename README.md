@@ -44,13 +44,13 @@ A full-featured media streaming platform built with modern web technologies. Upl
 2. Start with Docker:
    ```bash
    # Development
-   docker compose -f compose.dev.yml up
+   docker compose up
    
    # Production
-   docker compose up
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml up
    ```
 
-3. Without Docker:
+3. Without Docker (Use Ubuntu Linux Recommended):
    - Set up Python virtual environment and install dependencies
    - Set up Node.js for the media backend
    - Configure MySQL database
