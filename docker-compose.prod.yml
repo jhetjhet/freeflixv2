@@ -1,7 +1,7 @@
 
 services:
   frontend:
-    image: snits/freeflix-react:${FREEFLIX_REACT:-latest} # production build
+    image: snits/freeflix-react:${FREEFLIX_REACT_VERSION:-latest} # production build
     build: !reset null
     develop: !reset null
     ports: []
@@ -18,7 +18,7 @@ services:
     command: gunicorn freeflix.wsgi:application -b 0.0.0.0:8000
 
   node_backend:
-    image: snits/freeflix-node-server:${FREEFLIX_NODE_SERVER_VERSION:-latest}
+    image: snits/freeflix-node-server:${FREEFLIX_NODE_VERSION:-latest}
     build: !reset null
     command: pm2-runtime start index.js --name node-media-server
 
