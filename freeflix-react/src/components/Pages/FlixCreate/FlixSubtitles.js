@@ -158,7 +158,7 @@ const FlixSubtitles = ({
                             }}
                             onClick={() => fileInputRefs[idx]?.current?.click()}
                         >
-                            {sub?.subtitle_url || sub?.__subtitle?.name || "Select SRT"}
+                            {sub?.subtitle_url || sub?.__subtitle?.name || "Select VTT"}
                         </Button>
 
                         <Button
