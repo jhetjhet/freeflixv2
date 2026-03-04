@@ -11,7 +11,7 @@ function FlixFooter(props){
 			<div className="mx-auto my-3">
 				<p className="my-auto text-light">
 					<span className="freeflix-ft text-flix">FreeFlix</span>{' '}©{' '}
-					<span>{`${year}-${day < 10 ? '0' : ''}${day}-${month < 10 ? '0' : ''}${month}`}</span>
+					<span>{year}</span>
 				</p>
 			</div>
 		</footer>
