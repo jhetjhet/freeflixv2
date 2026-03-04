@@ -61,10 +61,8 @@ services:
     volumes:
       - ./nginx-server/includes:/etc/nginx/includes
       - ${MEDIA_ROOT}:/usr/share/nginx/media
-      - frontend_build:/usr/share/nginx/html
     ports:
-      - 80:80
+      - 127.0.0.1:8080:80
 
 volumes:
   freeflix_mysql_data:
-  frontend_build:
