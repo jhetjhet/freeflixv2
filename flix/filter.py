@@ -15,8 +15,11 @@ class SequenceSearchFilter(SearchFilter):
 		if not search_fields or not search_terms:
 			return QuerySetSequence(queryset1, queryset2)
 
+		# Both models share the same model and so field types (FlixBaseModel), 
+		# so the generated lookup strings (e.g., 'title__icontains') 
+		# are identical and can be reused for both querysets.
 		orm_lookups = [
-		self.construct_search(str(search_field))
+			self.construct_search(str(search_field), queryset1)
 			for search_field in search_fields
 		]
 

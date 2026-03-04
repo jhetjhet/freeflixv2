@@ -76,7 +76,7 @@ class EpisodeSubtitle(SubtitleBase):
 	def media(self):
 		return self.episode
 
-class FlixBaseModle(TMDBModel):
+class FlixBaseModel(TMDBModel):
 	id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
 	title = models.CharField(max_length=256)
@@ -94,7 +94,7 @@ class Genre(TMDBModel):
 	def __str__(self):
 		return self.name
 
-class Movie(FlixBaseModle, MediaBase):
+class Movie(FlixBaseModel, MediaBase):
 
 	def video_path(self):
 		return f'movies/{self.tmdb_id}-{self.title.replace(" ", "-")}/video'
@@ -102,7 +102,7 @@ class Movie(FlixBaseModle, MediaBase):
 	def __str__(self):
 		return self.title
 
-class Series(FlixBaseModle):
+class Series(FlixBaseModel):
 	def __str__(self):
 		return self.title
 

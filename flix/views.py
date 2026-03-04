@@ -179,29 +179,33 @@ class MixFlixList(ListAPIView):
     ordering = ['date_upload']
 
     def list(self, request):
-        querys = self.get_queryset()
+        queryset = self.get_queryset()
+
+        page = self.paginate_queryset(queryset)
+
         datas = []
-        for query in querys:
-            if query.__class__ == Movie:
+        
+        for query in page:
+            if isinstance(query, Movie):
                 datas.append(MovieSerializer(query).data)
-            elif query.__class__ == Series:
+            elif isinstance(query, Series):
                 datas.append(SeriesSerializer(query).data)
+
         return self.get_paginated_response(datas)
 
     def get_queryset(self):
         params = self.request.query_params
         if 'genre' in params:
             genre_name = params['genre']
-            genre = Genre.objects.filter(name__iexact=genre_name)
-            if genre.exists():
-                genre = genre.first()
-                movie_qrys = genre.movie_set.all()
-                series_qrys = genre.series_set.all()
+            
+            movie_qrys = Movie.objects.filter(genres__name__icontains=genre_name)
+            series_qrys = Series.objects.filter(genres__name__icontains=genre_name)
         else:
             movie_qrys = Movie.objects.all()
             series_qrys = Series.objects.all()
+
         queryset = self.filter_queryset((movie_qrys, series_qrys))
-        return self.paginate_queryset(queryset)
+        return queryset
 
 class MovieList(ListCreateAPIView):
     serializer_class = MovieSerializer
@@ -278,6 +282,15 @@ class SeriesList(ListCreateAPIView):
             instance.save()
 
         return Response(serializer.data)
+
+    def get_queryset(self):
+        params = self.request.query_params
+        if 'genre' in params:
+            genre_name = params['genre']
+            genre = Genre.objects.filter(name__iexact=genre_name)
+            if genre.exists():
+                return genre.first().series_set.all()
+        return Series.objects.all()
 
 
 class SeriesDetail(RetrieveUpdateDestroyAPIView):
