@@ -2,7 +2,10 @@ services:
   frontend:
     build:
       context: ./freeflix-react
+      target: build
     container_name: freeflix-frontend-dev
+    env_file:
+      - ./freeflix-react/.env.development
     develop:
       watch:
         - action: sync
@@ -21,8 +24,6 @@ services:
   
   backend:
     container_name: freeflix-backend-dev
-    env_file:
-      - .env
     develop:
       watch:
         - action: sync

@@ -1,5 +1,3 @@
-.vscode/
-.git/
 freeflix-react/
 node-media-server/
 nginx-server/
@@ -7,10 +5,17 @@ staticfiles/
 media/
 *.sqlite3
 
+.vscode/
+.git/
 .env
 *.env
 
+Dockerfile
 .gitignore
 .dockerignore
 docker-compose.yml
 docker-compose.*.yml
+
+__pycache__
+*.pyc
+venv

@@ -1,20 +1,25 @@
 
 services:
   frontend:
+    image: snits/freeflix-react:${FREEFLIX_REACT:-latest} # production build
+    build: !reset null
+    develop: !reset null
+    ports: []
+    stdin_open: false
+    tty: false
     container_name: freeflix-frontend
-    volumes:
-      - frontend_build:/app/build
-    command: npm run build
+    environment:
+      - NODE_ENV=production
 
   backend:
     image: snits/freeflix-django:${FREEFLIX_DJANGO_VERSION:-latest}
     build: !reset null
     container_name: freeflix-backend
-    env_file:
-      - .env
     command: gunicorn freeflix.wsgi:application -b 0.0.0.0:8000
 
   node_backend:
+    image: snits/freeflix-node-server:${FREEFLIX_NODE_SERVER_VERSION:-latest}
+    build: !reset null
     command: pm2-runtime start index.js --name node-media-server
 
   web_server:

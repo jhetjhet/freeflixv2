@@ -1,12 +1,20 @@
-FROM python:3.9-slim
+FROM python:3.9.18-slim
 
 WORKDIR /app
-COPY . /app
-COPY start.sh /app/start.sh
 
-RUN apt-get update && apt-get install -y pkg-config python3-dev default-libmysqlclient-dev build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    default-libmysqlclient-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENTRYPOINT ["sh", "start.sh"]
+COPY . /app/
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 EXPOSE 8000
+
+ENTRYPOINT ["/app/start.sh"]
