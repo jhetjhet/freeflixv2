@@ -4,7 +4,6 @@ services:
     image: snits/freeflix-react:${FREEFLIX_REACT_VERSION:-latest} # production build
     build: !reset null
     develop: !reset null
-    ports: []
     stdin_open: false
     tty: false
     container_name: freeflix-frontend

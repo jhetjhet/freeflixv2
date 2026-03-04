@@ -47,8 +47,6 @@ services:
       - PORT=8080
       - DJANGO_URL_PATH=http://backend:8000
       - ENV_MODE=production
-    expose:
-      - 8080
 
   web_server:
     image: nginx

@@ -16,8 +16,6 @@ services:
             - node_modules/
         - action: rebuild
           path: ./freeflix-react/package.json
-    ports:
-      - "3000:3000"
     stdin_open: true
     tty: true
     command: ["npm", "start"]
@@ -30,16 +28,12 @@ services:
           path: .
           initial_sync: true
           target: /app
-    ports:
-      - "8000:8000"
     command: python manage.py runserver 0.0.0.0:8000
 
   node_backend:
     container_name: freeflix-node-backend-dev
     environment:
       - ENV_MODE=development
-    ports:
-      - "8080:8080"
     develop:
       watch:
         - action: sync
