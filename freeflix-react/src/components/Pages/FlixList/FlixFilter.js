@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
 	Dropdown,
 } from 'react-bootstrap';
 import ListFlix from './ListFlix.js';
+import FlixPagination from './FlixPagination.js';
 
 const FlixFilter = () => {
 	const [selectedFlixType, setSelectedFlixType] = useState('all');
@@ -18,11 +19,13 @@ const FlixFilter = () => {
 	const [searchFilter, setSearchFilter] = useState('');
 
 	const [searchVal, setSearchVal] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
 
 	useEffect(() => {
 		var genreArr = [];
 		axios.get('/api/genre/list/').then(resp => {
-			for(let genre of resp.data)
+			for (let genre of resp.data)
 				genreArr.push(genre.name);
 			setGenres(g => [...g, ...genreArr]);
 		}).catch((error) => {
@@ -47,22 +50,37 @@ const FlixFilter = () => {
 		setSearchFilter(searchVal);
 	}
 
-	return(
+	let flixPagination = null;
+
+	if (totalPages > 1) {
+		flixPagination = (
+			<div className="d-flex justify-content-center my-4">
+				<FlixPagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					npages={7}
+					onChange={(p) => setCurrentPage(p)}
+				/>
+			</div>
+		);
+	}
+
+	return (
 		<div className="filterflix h-100 d-flex mt-3">
 			<div className="w-100">
 				<div className="w-100 d-flex justify-content-center">
 					<form className="search-bar d-flex" onSubmit={onSearchSubmit}>
-						<input 
-							className="w-100" 
-							type="text" 
-							placeholder="Search..." 
-							value={searchVal} 
-							onChange={(event) => {setSearchVal(event.target.value)}}
+						<input
+							className="w-100"
+							type="text"
+							placeholder="Search..."
+							value={searchVal}
+							onChange={(event) => { setSearchVal(event.target.value) }}
 						/>
 						<button type="submit" className="rounded">
 							<svg width="1.3em" height="1.3em" viewBox="0 0 16 16" className="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-								<path fillRule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/>
-								<path fillRule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+								<path fillRule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
+								<path fillRule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
 							</svg>
 						</button>
 					</form>
@@ -105,14 +123,20 @@ const FlixFilter = () => {
 						</Dropdown.Menu>
 					</Dropdown>
 				</div>
-				<div>
-					<ListFlix 
+				{flixPagination}
+				<div className={`${flixPagination ? '' : 'my-4'}`}>
+					<ListFlix
+						page={currentPage}
 						searchFilter={searchFilter}
-						flixTypeFilter={selectedFlixType} 
+						flixTypeFilter={selectedFlixType}
 						genreFilter={selectedGenre}
 						orderingFilter={selectedOrdering}
+						onResponse={(data) => {
+							setTotalPages(data?.total_pages ?? 1);
+						}}
 					/>
 				</div>
+				{flixPagination}
 			</div>
 		</div>
 	);

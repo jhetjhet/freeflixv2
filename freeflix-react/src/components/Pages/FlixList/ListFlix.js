@@ -2,7 +2,14 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import MovieCard from './MovieCard.js';
 
-const ListFlix = ({searchFilter, flixTypeFilter, genreFilter, orderingFilter}) => {
+const ListFlix = ({
+	page = 1,
+	searchFilter, 
+	flixTypeFilter, 
+	genreFilter, 
+	orderingFilter,
+	onResponse = () => {},
+}) => {
 	const [flixes, setFlixes] = useState([]);
 
 	useEffect(() => {
@@ -23,7 +30,11 @@ const ListFlix = ({searchFilter, flixTypeFilter, genreFilter, orderingFilter}) =
 				break;
 		}
 
-		conf.params.search = searchFilter;
+		if (searchFilter) {
+			conf.params.search = searchFilter;
+		}
+
+		conf.params.page = page;
 		conf.params.ordering = ordering;
 
 		if(genreFilter !== 'all')
@@ -32,14 +43,15 @@ const ListFlix = ({searchFilter, flixTypeFilter, genreFilter, orderingFilter}) =
 		const url = `/api/${flixTypeFilter.toLowerCase()}/`;
 		axios.get(url, conf).then(resp => {
 			setFlixes(resp.data.results);
+			onResponse(resp.data);
 		}).catch(err => {
 			console.error(err);
 		});
-	}, [searchFilter, flixTypeFilter, genreFilter, orderingFilter]);
+	}, [page, searchFilter, flixTypeFilter, genreFilter, orderingFilter]);
 
 	return (
-		<div className="h-100 d-flex mt-3 justify-content-center">
-			<div className="w-75 my-5">
+		<div className="h-100 d-flex justify-content-center">
+			<div className="w-75">
 				<div className="container">
 					<div className="row">
 						{flixes.map((flix) => (

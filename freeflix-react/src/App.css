@@ -1,3 +1,7 @@
+:root{
+  --primary-color: #E50914;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -62,7 +66,7 @@ a:hover {
 
 .btn-flix {
   color: white;
-  background-color: #E50914;
+  background-color: var(--primary-color);
 }
 /*button end*/
 
@@ -105,13 +109,13 @@ a:hover {
 }
 
 .text-flix {
-  color: #E50914;
+  color: var(--primary-color);
 }
 /*Text End*/
 
 /*Border*/
 .border-flix {
-  border-color: #E50914 !important;
+  border-color: var(--primary-color) !important;
 }
 /*Border End*/
 
@@ -159,7 +163,7 @@ footer .freeflix-ft {
   max-width: 512px;
   margin: 0 2.5em;
   padding-left: 0.5em;
-  border-bottom: 1px solid #E50914;
+  border-bottom: 1px solid var(--primary-color);
 }
 
 .search-bar input {
@@ -172,7 +176,7 @@ footer .freeflix-ft {
 }
 
 .search-bar button {
-  color: #E50914;
+  color: var(--primary-color);
   background-color: rgba(255, 255, 255, 0.2);
   float: right;
   margin-left: 0.5em;
@@ -284,7 +288,7 @@ footer .freeflix-ft {
   color: white;
   font-size: 0.8rem;
   cursor: pointer;
-  background-color: #E50914;
+  background-color: var(--primary-color);
   padding: 0.3rem;
 }
 
@@ -310,7 +314,7 @@ footer .freeflix-ft {
 }
 
 .movie-card-poster:hover .movie-card-poster-cont {
-  border: 6px solid #E50914;
+  border: 6px solid var(--primary-color);
 }
 
 .movie-card-poster:hover .movie-card-overlay {
@@ -318,7 +322,7 @@ footer .freeflix-ft {
 }
 
 .bi-star-fill {
-  color: #E50914;
+  color: var(--primary-color);
 }
 
 .movie-card-ratings {
@@ -345,7 +349,7 @@ footer .freeflix-ft {
 
 .create-selection-cont {
   height: 32px;
-  border: 1px solid #E50914;
+  border: 1px solid var(--primary-color);
 }
 
 .selection-item {
@@ -419,7 +423,7 @@ footer .freeflix-ft {
 /*SeriesFormHolder*/
 .series-form-holder {
   background-color: black;
-  box-shadow: 0 0.2em 18px red;
+  box-shadow: 0 0.2em 18px var(--primary-color);
 }
 /*SeriesFormHolder End*/
 
@@ -444,7 +448,7 @@ footer .freeflix-ft {
 }
 
 .flix-form-title {
-  color: #E50914;
+  color: var(--primary-color);
   font-weight: bold;
 }
 
@@ -462,7 +466,7 @@ footer .freeflix-ft {
 }
 
 .upload-progress-cont .progress .progress-bar {
-  background-color: #E50914;
+  background-color: var(--primary-color);
 }
 
 .flix-type-patch {
@@ -478,6 +482,32 @@ footer .freeflix-ft {
 .flix-type-patch span {
   color: white;
 }
+
+.flix-pagination .page-link {
+	background-color: transparent;
+	border: 1px solid var(--primary-color);
+	color: var(--primary-color);
+	margin: 0 3px;
+}
+
+.flix-pagination .page-link:hover {
+	background-color: rgba(255, 42, 42, 0.15);
+	color: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+.flix-pagination .page-item.active .page-link {
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+	color: white;
+}
+
+.flix-pagination .page-item.disabled .page-link {
+	background-color: transparent;
+	color: #999;
+	border-color: #444;
+}
+
 /*FlixForm End*/
 
 
