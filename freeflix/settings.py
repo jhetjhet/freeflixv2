@@ -23,7 +23,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*'] if DEBUG else [os.getenv('ALLOWED_HOSTS', 'localhost').split(',')]
+ALLOWED_HOSTS = ['*'] if DEBUG else os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+print("x" * 64)
+print(f"DEBUG: {DEBUG}")
+print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+print("x" * 64)
 CORS_ALLOW_ALL_ORIGINS = True if DEBUG else False
 
 # Application definition
