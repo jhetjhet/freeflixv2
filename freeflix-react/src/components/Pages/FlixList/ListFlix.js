@@ -1,21 +1,33 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import axios from 'axios';
 import MovieCard from './MovieCard.js';
+import MovieCardSkeleton from './MovieCardSkeleton.js';
+
+const MovieCardsPlaceholder = memo(({ count = 12 }) => {
+	return Array.from({ length: count }, (v, i) => i).map((index) => (
+		<div key={index} className="col-lg-3 col-md-4 col-sm-6 col-xs-12 d-flex justify-content-center align-items-center mb-2">
+			<MovieCardSkeleton />
+		</div>
+	));
+});
 
 const ListFlix = ({
 	page = 1,
-	searchFilter, 
-	flixTypeFilter, 
-	genreFilter, 
+	searchFilter,
+	flixTypeFilter,
+	genreFilter,
 	orderingFilter,
-	onResponse = () => {},
+	onResponse = () => { },
 }) => {
 	const [flixes, setFlixes] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		var conf = {params:{}};
+		setIsLoading(true);
+
+		var conf = { params: {} };
 		var ordering;
-		switch(orderingFilter){
+		switch (orderingFilter) {
 			case 'latest':
 				ordering = 'date_upload';
 				break;
@@ -37,7 +49,7 @@ const ListFlix = ({
 		conf.params.page = page;
 		conf.params.ordering = ordering;
 
-		if(genreFilter !== 'all')
+		if (genreFilter !== 'all')
 			conf.params.genre = genreFilter;
 
 		const url = `/api/${flixTypeFilter.toLowerCase()}/`;
@@ -46,6 +58,8 @@ const ListFlix = ({
 			onResponse(resp.data);
 		}).catch(err => {
 			console.error(err);
+		}).finally(() => {
+			setIsLoading(false);
 		});
 	}, [page, searchFilter, flixTypeFilter, genreFilter, orderingFilter]);
 
@@ -54,19 +68,31 @@ const ListFlix = ({
 			<div className="w-75">
 				<div className="container">
 					<div className="row">
-						{flixes.map((flix) => (
-							<div key={flix.id} className="col-lg-3 col-md-4 col-sm-6 col-xs-12 d-flex justify-content-center align-items-center mb-2">
-								<MovieCard
-									flix_id={flix.id}
-									tmdb_id={flix.tmdb_id}
-									title={flix.title}
-									yearRelease={flix.date_release}
-									posterURL={`https://image.tmdb.org/t/p/w600_and_h900_bestv2/${flix.poster_path}`}
-									genres={flix.genres.map(genre => genre.name)}
-									isSeries={Boolean(flix.seasons)}
-								/>
+						{flixes.length === 0 && !isLoading && (
+							<div className="col-12 d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+								<h4 className="text-muted">No results found.</h4>
 							</div>
-						))}
+						)}
+
+						{isLoading && (
+							<MovieCardsPlaceholder count={12} />
+						)}
+
+						{!isLoading && flixes.length > 0 && (
+							flixes.map((flix) => (
+								<div key={flix.id} className="col-lg-3 col-md-4 col-sm-6 col-xs-12 d-flex justify-content-center align-items-center mb-2">
+									<MovieCard
+										flix_id={flix.id}
+										tmdb_id={flix.tmdb_id}
+										title={flix.title}
+										yearRelease={flix.date_release}
+										posterURL={`https://image.tmdb.org/t/p/w600_and_h900_bestv2/${flix.poster_path}`}
+										genres={flix.genres.map(genre => genre.name)}
+										isSeries={Boolean(flix.seasons)}
+									/>
+								</div>
+							))
+						)}
 					</div>
 				</div>
 			</div>
