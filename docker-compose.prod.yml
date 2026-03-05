@@ -6,14 +6,12 @@ services:
     develop: !reset null
     stdin_open: false
     tty: false
-    container_name: freeflix-frontend
     environment:
       - NODE_ENV=production
 
   backend:
     image: snits/freeflix-django:${FREEFLIX_DJANGO_VERSION:-latest}
     build: !reset null
-    container_name: freeflix-backend
     command: gunicorn freeflix.wsgi:application -b 0.0.0.0:8000
 
   node_backend:

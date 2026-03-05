@@ -38,7 +38,6 @@ services:
   node_backend:
     build:
       context: ./node-media-server
-    container_name: freeflix-node-backend
     depends_on:
       - backend
     volumes:
@@ -55,7 +54,6 @@ services:
       - backend
       - node_backend
       - frontend
-    container_name: freelix-nginx-container
     volumes:
       - ./nginx-server/includes:/etc/nginx/includes
       - ${MEDIA_ROOT}:/usr/share/nginx/media
