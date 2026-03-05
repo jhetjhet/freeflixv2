@@ -261,8 +261,10 @@ footer .freeflix-ft {
   padding: 0px;
 }
 
-.card-body {
+.movie-card > .card-body {
   padding: 6px;
+  height: fit-content;
+  min-height: 295px !important;
 }
 
 .card-text {
