@@ -33,7 +33,7 @@ A full-featured media streaming platform built with modern web technologies. Upl
 ### Prerequisites
 
 - Docker and Docker Compose (recommended)
-- Or: Node.js, Python 3.9+, MySQL (Linux environment recommended)
+- Or: Node.js, Python 3.9+ (Linux environment recommended)
 
 ### Installation
 
@@ -55,7 +55,6 @@ A full-featured media streaming platform built with modern web technologies. Upl
 3. Without Docker (Use Ubuntu Linux Recommended):
    - Set up Python virtual environment and install dependencies
    - Set up Node.js for the media backend
-   - Configure MySQL database
    - Run migrations and start services
 
 
