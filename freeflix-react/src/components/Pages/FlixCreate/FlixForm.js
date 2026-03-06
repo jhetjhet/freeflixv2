@@ -209,6 +209,7 @@ class FlixForm extends React.Component {
 						episodeNumber={episodeNumber}
 						onFinish={() => {
 							this.setState({ video: null, subt: null, cancelToken: null, percentProgress: 0 });
+							this.videoSelect.current.value = null;
 							this.fetchFlix();
 						}}
 					>
