@@ -29,10 +29,10 @@ const ListFlix = ({
 		var ordering;
 		switch (orderingFilter) {
 			case 'latest':
-				ordering = 'date_upload';
+				ordering = '-date_upload';
 				break;
 			case 'oldest':
-				ordering = '-date_upload';
+				ordering = 'date_upload';
 				break;
 			case 'year':
 				ordering = 'date_release';
