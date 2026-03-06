@@ -44,10 +44,10 @@ services:
       - ${MEDIA_ROOT}:/app/media
     environment:
       - PORT=8080
-      - DJANGO_URL_PATH=http://backend:8000
+      - DJANGO_URL_PATH=http://web-server
       - ENV_MODE=production
 
-  web_server:
+  web-server: # for RFC 1034 / 1035 compliant hostname resolution
     image: nginx
     restart: unless-stopped
     depends_on:

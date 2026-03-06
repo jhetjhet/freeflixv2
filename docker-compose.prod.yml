@@ -19,6 +19,6 @@ services:
     build: !reset null
     command: pm2-runtime start index.js --name node-media-server
 
-  web_server:
+  web-server:
     volumes:
       - ./nginx-server/config.conf:/etc/nginx/conf.d/default.conf
