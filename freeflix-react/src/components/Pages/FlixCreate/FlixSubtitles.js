@@ -5,6 +5,40 @@ import {
 import axios from 'axios';
 import ISO6391 from 'iso-639-1';
 
+function convertSrtToVtt(srtContent) {
+    // Convert SRT format to WebVTT format
+    let vttContent = "WEBVTT\n\n";
+
+    // Replace comma with dot in timestamps (SRT uses , for milliseconds, VTT uses .)
+    const lines = srtContent.split('\n');
+    let skipNextNumber = false;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        // Skip sequence numbers (numeric lines that come before timestamps)
+        if (/^\d+$/.test(line)) {
+            skipNextNumber = true;
+            continue;
+        }
+
+        // Process timestamp lines
+        if (line.includes('-->')) {
+            const convertedLine = line.replace(/,/g, '.');
+            vttContent += convertedLine + '\n';
+            skipNextNumber = false;
+        } else if (line.length > 0) {
+            // Add subtitle text
+            vttContent += line + '\n';
+        } else if (!skipNextNumber) {
+            // Add blank line separator
+            vttContent += '\n';
+        }
+    }
+
+    return vttContent;
+};
+
 const FlixSubtitles = ({
     initial_subtitles = [],
     media_base_url = "",
@@ -20,40 +54,6 @@ const FlixSubtitles = ({
     }, [subtitles]);
 
     const mediaBaseUrl = media_base_url + "subtitles";
-
-    const convertSrtToVtt = (srtContent) => {
-        // Convert SRT format to WebVTT format
-        let vttContent = "WEBVTT\n\n";
-
-        // Replace comma with dot in timestamps (SRT uses , for milliseconds, VTT uses .)
-        const lines = srtContent.split('\n');
-        let skipNextNumber = false;
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-
-            // Skip sequence numbers (numeric lines that come before timestamps)
-            if (/^\d+$/.test(line)) {
-                skipNextNumber = true;
-                continue;
-            }
-
-            // Process timestamp lines
-            if (line.includes('-->')) {
-                const convertedLine = line.replace(/,/g, '.');
-                vttContent += convertedLine + '\n';
-                skipNextNumber = false;
-            } else if (line.length > 0) {
-                // Add subtitle text
-                vttContent += line + '\n';
-            } else if (!skipNextNumber) {
-                // Add blank line separator
-                vttContent += '\n';
-            }
-        }
-
-        return vttContent;
-    };
 
     const updateFieldSub = (field, value, idx) => {
         setSubtitles((prevSub) => {
