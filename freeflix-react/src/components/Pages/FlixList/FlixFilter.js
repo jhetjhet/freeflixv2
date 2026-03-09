@@ -3,24 +3,63 @@ import axios from 'axios';
 import {
 	Dropdown,
 } from 'react-bootstrap';
+import { useHistory, useLocation } from 'react-router-dom';
 import ListFlix from './ListFlix.js';
 import FlixPagination from './FlixPagination.js';
 
+const ORDERING_OPTIONS = ['latest', 'oldest', 'title', 'year'];
+
+const parsePage = (rawPage) => {
+	const parsedPage = Number.parseInt(rawPage, 10);
+	if (Number.isNaN(parsedPage) || parsedPage < 1) {
+		return 1;
+	}
+
+	return parsedPage;
+};
+
 const FlixFilter = () => {
-	const [selectedFlixType, setSelectedFlixType] = useState('all');
+	const history = useHistory();
+	const location = useLocation();
+
 	const flixTypes = ['all', 'movie', 'series'];
 
-	const [selectedGenre, setGenre] = useState('all');
 	const [genres, setGenres] = useState(['all']);
 
-	const [selectedOrdering, setOrdering] = useState('latest');
-	const orderingLists = ['latest', 'oldest', 'title', 'year'];
+	const queryParams = new URLSearchParams(location.search);
+	const selectedFlixType = flixTypes.includes(queryParams.get('type'))
+		? queryParams.get('type')
+		: 'all';
+	const selectedGenre = queryParams.get('genre') || 'all';
+	const selectedOrdering = ORDERING_OPTIONS.includes(queryParams.get('ordering'))
+		? queryParams.get('ordering')
+		: 'latest';
+	const searchFilter = queryParams.get('search') || '';
+	const currentPage = parsePage(queryParams.get('page'));
 
-	const [searchFilter, setSearchFilter] = useState('');
-
-	const [searchVal, setSearchVal] = useState('');
-	const [currentPage, setCurrentPage] = useState(1);
+	const [searchVal, setSearchVal] = useState(searchFilter);
 	const [totalPages, setTotalPages] = useState(1);
+
+	const updateQueryParams = (updates) => {
+		const nextParams = new URLSearchParams(location.search);
+
+		Object.entries(updates).forEach(([key, value]) => {
+			if (value === '' || value === null || value === undefined) {
+				nextParams.delete(key);
+				return;
+			}
+
+			nextParams.set(key, value.toString());
+		});
+
+		const nextSearch = nextParams.toString();
+		const currentUrl = `${location.pathname}${location.search}`;
+		const nextUrl = `${location.pathname}${nextSearch ? `?${nextSearch}` : ''}`;
+
+		if (nextUrl !== currentUrl) {
+			history.push(nextUrl);
+		}
+	};
 
 	useEffect(() => {
 		var genreArr = [];
@@ -33,21 +72,37 @@ const FlixFilter = () => {
 		});
 	}, []);
 
+	useEffect(() => {
+		setSearchVal(searchFilter);
+	}, [searchFilter]);
+
 	const onFlixTypeSelect = (item) => {
-		setSelectedFlixType(item);
+		updateQueryParams({
+			type: item === 'all' ? null : item,
+			page: 1,
+		});
 	}
 
 	const onGenreSelect = (item) => {
-		setGenre(item);
+		updateQueryParams({
+			genre: item === 'all' ? null : item,
+			page: 1,
+		});
 	}
 
 	const onOrderSelect = (item) => {
-		setOrdering(item);
+		updateQueryParams({
+			ordering: item,
+			page: 1,
+		});
 	}
 
 	const onSearchSubmit = (event) => {
 		event.preventDefault();
-		setSearchFilter(searchVal);
+		updateQueryParams({
+			search: searchVal.trim(),
+			page: 1,
+		});
 	}
 
 	let flixPagination = null;
@@ -59,7 +114,7 @@ const FlixFilter = () => {
 					currentPage={currentPage}
 					totalPages={totalPages}
 					npages={7}
-					onChange={(p) => setCurrentPage(p)}
+					onChange={(p) => updateQueryParams({ page: p })}
 				/>
 			</div>
 		);
@@ -117,7 +172,7 @@ const FlixFilter = () => {
 							{selectedOrdering}
 						</Dropdown.Toggle>
 						<Dropdown.Menu>
-							{orderingLists.map(item => (
+							{ORDERING_OPTIONS.map(item => (
 								<Dropdown.Item key={item} eventKey={item}>{item}</Dropdown.Item>
 							))}
 						</Dropdown.Menu>
