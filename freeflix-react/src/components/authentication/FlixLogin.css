@@ -1,0 +1,97 @@
+.flix-login-modal .modal-content {
+    background-color: #141414;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.flix-modal-header {
+    border-bottom: none;
+    padding: 2rem 2rem 1rem;
+}
+
+.flix-modal-header .close {
+    color: #f2f2f2;
+    opacity: 0.7;
+    text-shadow: none;
+}
+
+.flix-modal-header .close:hover {
+    color: #fff;
+    opacity: 1;
+}
+
+.flix-modal-body {
+    padding: 1rem 2rem 2rem;
+}
+
+.flix-login-modal .modal-title {
+    color: #f2f2f2;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.flix-login-modal .form-control {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #f2f2f2;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+}
+
+.flix-login-modal .form-control:focus {
+    background-color: #404040;
+    border-color: var(--primary-color);
+    color: #f2f2f2;
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+}
+
+.flix-login-modal .form-control::placeholder {
+    color: #8c8c8c;
+}
+
+.flix-login-modal .form-label {
+    color: #f2f2f2;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.flix-login-modal .btn-flix {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.flix-login-modal .btn-flix:hover {
+    background-color: var(--primary-color);
+    filter: brightness(1.05);
+}
+
+.flix-login-modal .btn-flix:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.flix-login-modal .alert {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    border: 1px solid var(--primary-color);
+    color: #f2f2f2;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.flix-login-modal .text-muted {
+    color: #b3b3b3 !important;
+}
+
+.flix-login-modal .btn-link {
+    text-decoration: none;
+}
+
+.flix-login-modal .btn-link:hover {
+    text-decoration: underline;
+}
