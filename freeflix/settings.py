@@ -26,6 +26,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*'] if DEBUG else os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 CORS_ALLOW_ALL_ORIGINS = True if DEBUG else False
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:8080').split(',')
 
 # Application definition
 
@@ -70,7 +71,7 @@ TEMPLATES = [
         # 'DIRS': [
         #     'freeflix-react/build/',
         # ],
-        # 'APP_DIRS': True,
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

@@ -7,6 +7,7 @@ import {
 } from 'react-bootstrap';
 import FileUploader from './FileUploader';
 import FlixSubtitles from './FlixSubtitles';
+import SimpleToast from '../../toast/SimpleToast';
 
 class FlixForm extends React.Component {
 
@@ -20,6 +21,8 @@ class FlixForm extends React.Component {
 			cancelToken: null,
 			pauseUploadVideo: false,
 			isGetFlixLoading: false,
+			toastMessage: '',
+			showToast: false,
 		}
 
 		const { tmdb, flixType, seriesID } = this.props;
@@ -38,10 +41,45 @@ class FlixForm extends React.Component {
 		this.patchFlix = this.patchFlix.bind(this);
 		this.delFlix = this.delFlix.bind(this);
 		this.fetchFlix = this.fetchFlix.bind(this);
+		this.closeToast = this.closeToast.bind(this);
+		this.handleRequestError = this.handleRequestError.bind(this);
 	}
 
 	async componentDidMount() {
 		this.fetchFlix();
+	}
+
+	getErrorMessage(err) {
+		const detail = err?.response?.data?.detail;
+
+		if (Array.isArray(detail)) {
+			return detail.join(' ');
+		}
+
+		if (typeof detail === 'string' && detail.trim() !== '') {
+			return detail;
+		}
+
+		return err?.message || 'Request failed.';
+	}
+
+	closeToast() {
+		this.setState({ showToast: false, toastMessage: '' });
+	}
+
+	handleRequestError(err) {
+		if (axios.isCancel(err)) {
+			return;
+		}
+
+		console.error(err.message);
+
+		if (err?.response?.status === 403) {
+			this.setState({
+				showToast: true,
+				toastMessage: this.getErrorMessage(err),
+			});
+		}
 	}
 
 	fetchFlix() {
@@ -54,7 +92,7 @@ class FlixForm extends React.Component {
 				subt: null,
 			});
 		}).catch(err => {
-			console.error(err.message);
+			this.handleRequestError(err);
 		}).finally(() => {
 			this.setState({ isGetFlixLoading: false });
 		});
@@ -118,12 +156,13 @@ class FlixForm extends React.Component {
 				flix: resp.data,
 				subt: null,
 				cancelToken: null,
+				showToast: false,
+				toastMessage: '',
 			});
 
 			this.props.onSubmit(resp.data);
 		}).catch(err => {
-			if (!axios.isCancel(err))
-				console.error(err.message);
+			this.handleRequestError(err);
 		}).finally(() => {
 			callback();
 		});
@@ -149,9 +188,11 @@ class FlixForm extends React.Component {
 				flix: resp.data,
 				subt: null,
 				cancelToken: null,
+				showToast: false,
+				toastMessage: '',
 			});
 		}).catch(err => {
-			console.error(err.message);
+			this.handleRequestError(err);
 		});
 	}
 
@@ -162,17 +203,19 @@ class FlixForm extends React.Component {
 				subt: null,
 				flix: null,
 				cancelToken: null,
+				showToast: false,
+				toastMessage: '',
 			});
 
 			this.fileUploadRef.current.cancelUpload();
 			this.props.onDelete(this.props?.tmdb?.id);
 		}).catch(err => {
-			console.error(err.message);
+			this.handleRequestError(err);
 		});
 	}
 
 	render() {
-		const { video, subt, flix, isGetFlixLoading } = this.state;
+		const { video, subt, flix, isGetFlixLoading, showToast, toastMessage } = this.state;
 		const { tmdb } = this.props;
 
 		const seasonNumber = tmdb?.season_number ?? null;
@@ -184,6 +227,7 @@ class FlixForm extends React.Component {
 
 		return (
 			<div className="flix-form border border-flix bg-light rounded w-100 d-flex flex-column p-2 my-2">
+				<SimpleToast type="error" show={showToast} message={toastMessage} onClose={this.closeToast} />
 				{(flix) &&
 					<Button size="sm" variant="danger py-0 px-1 ml-auto" onClick={this.delFlix} className="flix-del-btn mr-2">
 						delete
@@ -283,9 +327,9 @@ class FlixForm extends React.Component {
 
 				{flix && (
 					<div className="my-3">
-						<FlixSubtitles 
-							initial_subtitles={flix.subtitles} 
-							media_base_url={this.flixUrl} 
+						<FlixSubtitles
+							initial_subtitles={flix.subtitles}
+							media_base_url={this.flixUrl}
 						/>
 					</div>
 				)}

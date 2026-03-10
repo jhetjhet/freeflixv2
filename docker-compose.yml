@@ -34,6 +34,7 @@ services:
       - mysql
     volumes:
       - ${MEDIA_ROOT}:/app/media
+      - ./staticfiles:/app/staticfiles
 
   node_backend:
     build:
@@ -56,6 +57,7 @@ services:
       - frontend
     volumes:
       - ./nginx-server/includes:/etc/nginx/includes
+      - ./staticfiles:/usr/share/nginx/html/static
       - ${MEDIA_ROOT}:/usr/share/nginx/media
     ports:
       - 127.0.0.1:8080:80
