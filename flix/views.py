@@ -101,6 +101,7 @@ from rest_framework.filters import (
     OrderingFilter,
 )
 from .filter import SequenceSearchFilter
+from .permissions import FlixModelPermission
 from queryset_sequence import QuerySetSequence
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -110,10 +111,14 @@ class GenreList(ListAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = None
+    permission_classes = [FlixModelPermission]
+    permission_model = Genre
 
 class MovieSubtitleList(ListCreateAPIView):
     serializer_class = MovieSubtitleSerializer
     pagination_class = None
+    permission_classes = [FlixModelPermission]
+    permission_model = MovieSubtitle
 
 
     def perform_create(self, serializer):
@@ -129,6 +134,8 @@ class MovieSubtitleDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = MovieSubtitleSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'subtitle_id'
+    permission_classes = [FlixModelPermission]
+    permission_model = MovieSubtitle
 
     def get_queryset(self):
         movie = get_object_or_404(Movie, tmdb_id=self.kwargs.get('tmdb_id'))
@@ -137,6 +144,8 @@ class MovieSubtitleDetail(RetrieveUpdateDestroyAPIView):
 class EpisodeSubtitleList(ListCreateAPIView):
     serializer_class = EpisodeSubtitleSerializer
     pagination_class = None
+    permission_classes = [FlixModelPermission]
+    permission_model = EpisodeSubtitle
 
     def perform_create(self, serializer):
         series = get_object_or_404(Series, tmdb_id=self.kwargs.get('series_tmdb_id'))
@@ -155,6 +164,8 @@ class EpisodeSubtitleDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = EpisodeSubtitleSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'subtitle_id'
+    permission_classes = [FlixModelPermission]
+    permission_model = EpisodeSubtitle
 
     def get_queryset(self):
         series = get_object_or_404(Series, tmdb_id=self.kwargs.get('series_tmdb_id'))
@@ -163,6 +174,8 @@ class EpisodeSubtitleDetail(RetrieveUpdateDestroyAPIView):
         return EpisodeSubtitle.objects.filter(episode=episode)
 
 class MixFlixList(ListAPIView):
+    permission_classes = [FlixModelPermission]
+    permission_models = [Movie, Series]
     filter_backends = [
         SequenceSearchFilter,
         OrderingFilter,
@@ -209,6 +222,8 @@ class MixFlixList(ListAPIView):
 
 class MovieList(ListCreateAPIView):
     serializer_class = MovieSerializer
+    permission_classes = [FlixModelPermission]
+    permission_model = Movie
     filter_backends = [
         SearchFilter,
         OrderingFilter,
@@ -237,10 +252,14 @@ class MovieDetail(RetrieveUpdateDestroyAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     lookup_field = 'tmdb_id'
+    permission_classes = [FlixModelPermission]
+    permission_model = Movie
 
 class SeriesList(ListCreateAPIView):
     queryset = Series.objects.all()
     serializer_class = SeriesSerializer
+    permission_classes = [FlixModelPermission]
+    permission_model = Series
     filter_backends = [
         SearchFilter,
         OrderingFilter,
@@ -297,6 +316,8 @@ class SeriesDetail(RetrieveUpdateDestroyAPIView):
     queryset = Series.objects.all()
     serializer_class = SeriesSerializer
     lookup_fields = ['series_tmdb_id']
+    permission_classes = [FlixModelPermission]
+    permission_model = Series
 
     def get_object(self):
         queryset = self.get_queryset()
@@ -308,6 +329,8 @@ class SeriesDetail(RetrieveUpdateDestroyAPIView):
 class SeasonList(ListCreateAPIView):
     queryset = Season.objects.all()
     serializer_class = SeasonSerializer
+    permission_classes = [FlixModelPermission]
+    permission_model = Season
     lookup_fields = [
         'series_tmdb_id',
     ]
@@ -327,6 +350,8 @@ class SeasonList(ListCreateAPIView):
 
 class SeasonDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = SeasonSerializer
+    permission_classes = [FlixModelPermission]
+    permission_model = Season
     lookup_fields = [
         'series_tmdb_id',
         'season_number',
@@ -349,6 +374,8 @@ class SeasonDetail(RetrieveUpdateDestroyAPIView):
 class EpisodeList(ListCreateAPIView):
     queryset = Episode.objects.all()
     serializer_class = EpisodeSerializer
+    permission_classes = [FlixModelPermission]
+    permission_model = Episode
     lookup_fields = [
         'series_tmdb_id',
         'season_number',
@@ -371,6 +398,8 @@ class EpisodeList(ListCreateAPIView):
 class EpisodeDetail(RetrieveUpdateDestroyAPIView):
     queryset = Episode.objects.all()
     serializer_class = EpisodeSerializer
+    permission_classes = [FlixModelPermission]
+    permission_model = Episode
     lookup_fields = [
         'series_tmdb_id',
         'season_number',
