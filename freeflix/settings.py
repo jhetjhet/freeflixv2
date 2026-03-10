@@ -183,6 +183,7 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
         'user': 'client.serializers.FlixerSerializer',
+        'current_user': 'client.serializers.FlixerSerializer',
         'user_create': 'client.serializers.FlixerCreateSerializer',
 
         'activation': 'djoser.serializers.ActivationSerializer',
@@ -198,7 +199,6 @@ DJOSER = {
         'username_reset_confirm_retype': 'djoser.serializers.UsernameResetConfirmRetypeSerializer',
         'user_create_password_retype': 'djoser.serializers.UserCreatePasswordRetypeSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
-        'current_user': 'djoser.serializers.UserSerializer',
         'token': 'djoser.serializers.TokenSerializer',
         'token_create': 'djoser.serializers.TokenCreateSerializer',
     }

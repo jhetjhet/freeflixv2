@@ -8,6 +8,7 @@ import FlixLogin from './authentication/FlixLogin';
 function FlixNavbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const canCreateFlix = Boolean(user?.can_create_flix);
 
   const handleLogout = () => {
     logout();
@@ -22,9 +23,11 @@ function FlixNavbar() {
           </Link>
         </Navbar.Brand>
         <Nav className="ml-auto d-flex align-items-center">
-          <Link to="/flix/create" className="mr-3">
-            create
-          </Link>
+          {isAuthenticated && canCreateFlix && (
+            <Link to="/flix/create" className="mr-3">
+              create
+            </Link>
+          )}
           
           {isAuthenticated ? (
             <>
