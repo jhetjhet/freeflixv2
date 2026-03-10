@@ -1,0 +1,73 @@
+.simple-toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1080;
+    width: min(360px, calc(100vw - 2rem));
+}
+
+.simple-toast__card {
+    border: 1px solid rgba(229, 9, 20, 0.55);
+    border-radius: 10px;
+    background: rgba(18, 18, 18, 0.96);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+.simple-toast__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.9rem;
+    background: linear-gradient(90deg, rgba(229, 9, 20, 0.24), rgba(229, 9, 20, 0.08));
+    border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+}
+
+.simple-toast__card--error {
+    border-color: rgba(229, 9, 20, 0.55);
+}
+
+.simple-toast__header--error {
+    background: linear-gradient(90deg, rgba(229, 9, 20, 0.24), rgba(229, 9, 20, 0.08));
+    border-bottom-color: rgba(229, 9, 20, 0.3);
+}
+
+.simple-toast__card--info {
+    border-color: rgba(30, 144, 255, 0.55);
+}
+
+.simple-toast__header--info {
+    background: linear-gradient(90deg, rgba(30, 144, 255, 0.28), rgba(30, 144, 255, 0.1));
+    border-bottom-color: rgba(30, 144, 255, 0.3);
+}
+
+.simple-toast__card--warning {
+    border-color: rgba(255, 193, 7, 0.6);
+}
+
+.simple-toast__header--warning {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.3), rgba(255, 193, 7, 0.1));
+    border-bottom-color: rgba(255, 193, 7, 0.32);
+}
+
+.simple-toast__title {
+    color: #ffffff;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+.simple-toast__close {
+    padding: 0;
+    background: transparent;
+    color: #ffffff;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.simple-toast__message {
+    margin: 0;
+    padding: 0.9rem;
+    color: #f4f4f4;
+    font-size: 0.85rem;
+}
