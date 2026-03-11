@@ -1,17 +1,28 @@
 require('dotenv').config();
 
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
+const { Server } = require('socket.io');
 const Chunk = require('./database/models/Chunk');
 const uploadRouter = require('./routes/upload');
+const { createWatchTogetherRouter, registerWatchTogetherHandlers } = require('./watch-together');
 const axios = require('axios');
 
 Chunk.sync({ alter: true });
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 8080;
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
 
 app.use(cors({origin: '*'}));
+app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send('Welcome to Node Media Servereee').end();
@@ -32,7 +43,10 @@ app.get('/flix-test/:tmdb_id', async (req, res) => {
 });
 
 app.use('/upload', uploadRouter);
+app.use('/watch-together', createWatchTogetherRouter());
 
-app.listen(PORT, () => {
+registerWatchTogetherHandlers(io);
+
+server.listen(PORT, () => {
     console.log('Server running...', PORT);
 });

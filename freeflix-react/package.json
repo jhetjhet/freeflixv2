@@ -16,7 +16,8 @@
     "react-player": "^2.9.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "socket.io-client": "^4.8.3"
   },
   "scripts": {
     "start": "react-scripts start",
