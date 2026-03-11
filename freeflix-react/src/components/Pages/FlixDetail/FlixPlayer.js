@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
+import { FlixPlayerHost } from './watchtogether/FlixPlayerHost';
+import { FlixPlayerClient } from './watchtogether/FlixPlayerClient';
 
 const STORAGE_KEY = "video-progress";
 const MAX_VIDEOS = 20;
-
 const formatTime = (seconds) => {
 	const mins = Math.floor(seconds / 60);
 	const secs = Math.floor(seconds % 60);
@@ -95,7 +96,7 @@ const VideoPlayer = ({ id, video_url, subtitles = [] }) => {
 			initialSaved.current = null;
 		}
 
-		if (played == 0) {
+		if (played === 0) {
 			return;
 		}
 
@@ -211,5 +212,39 @@ export const MoviePlayer = ({ id = null, video_url = "", subtitles = [] }) => {
 				)}
 			</div>
 		</div>
+	);
+};
+
+export const WatchTogetherPlayer = ({
+	roomId,
+	video_url = "",
+	subtitles = [],
+	isHost = false,
+	syncInterval = 4000,
+	onRoomClosed = () => {},
+	onError = () => {},
+}) => {
+	if (isHost) {
+		return (
+			<FlixPlayerHost
+				roomId={roomId}
+				video_url={video_url}
+				subtitles={subtitles}
+				syncInterval={syncInterval}
+				onRoomClosed={onRoomClosed}
+				onError={onError}
+			/>
+		);
+	}
+
+	return (
+		<FlixPlayerClient
+			roomId={roomId}
+			video_url={video_url}
+			subtitles={subtitles}
+			syncInterval={syncInterval}
+			onRoomClosed={onRoomClosed}
+			onError={onError}
+		/>
 	);
 };

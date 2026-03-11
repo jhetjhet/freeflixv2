@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import './SimpleToast.css';
 
 const TOAST_TITLES = {
     error: 'Request Failed',
     info: 'Information',
+    success: 'Success',
     warning: 'Warning',
 };
 
@@ -36,7 +38,7 @@ const SimpleToast = ({
     const toastClassName = `simple-toast__card simple-toast__card--${type}`;
     const toastHeaderClassName = `simple-toast__header simple-toast__header--${type}`;
 
-    return (
+    const toastContent = (
         <div className="simple-toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div className={toastClassName}>
                 <div className={toastHeaderClassName}>
@@ -49,11 +51,17 @@ const SimpleToast = ({
             </div>
         </div>
     );
+
+    if (typeof document === 'undefined') {
+        return toastContent;
+    }
+
+    return createPortal(toastContent, document.body);
 };
 
 SimpleToast.propTypes = {
     show: PropTypes.bool,
-    type: PropTypes.oneOf(['error', 'info', 'warning']),
+    type: PropTypes.oneOf(['error', 'info', 'success', 'warning']),
     title: PropTypes.string,
     message: PropTypes.string,
     duration: PropTypes.number,

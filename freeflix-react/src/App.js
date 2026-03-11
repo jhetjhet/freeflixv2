@@ -3,7 +3,6 @@ import './App.css';
 import {
 	BrowserRouter as Router, 
 	Route, 
-	Redirect, 
 	Switch
 } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -13,6 +12,8 @@ import FlixCreate from './components/Pages/FlixCreate/FlixCreate.js';
 import FlixFilter from './components/Pages/FlixList/FlixFilter.js';
 import MovieDetail from './components/Pages/FlixDetail/MovieDetail.js';
 import SeriesDetail from './components/Pages/FlixDetail/SeriesDetail.js';
+import WatchTogetherRoom from './components/Pages/WatchTogether/WatchTogetherRoom.js';
+import NotFound from './components/Pages/NotFound.js';
 
 function App() {
   return (
@@ -36,6 +37,12 @@ function App() {
 								</Route>
 								<Route exact path="/flix/create">
 									<FlixCreate />
+								</Route>
+								<Route exact path="/watch-together/:roomId">
+									<WatchTogetherRoom />
+								</Route>
+								<Route path="*">
+									<NotFound />
 								</Route>
 							</Switch>
 							<FlixFooter />

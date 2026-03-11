@@ -41,6 +41,15 @@
     border-bottom-color: rgba(30, 144, 255, 0.3);
 }
 
+.simple-toast__card--success {
+    border-color: rgba(40, 167, 69, 0.55);
+}
+
+.simple-toast__header--success {
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.28), rgba(40, 167, 69, 0.1));
+    border-bottom-color: rgba(40, 167, 69, 0.3);
+}
+
 .simple-toast__card--warning {
     border-color: rgba(255, 193, 7, 0.6);
 }
