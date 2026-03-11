@@ -1,9 +1,13 @@
 const express = require('express');
 const axios = require('axios');
+const { redis, roomKey } = require('./redis-client');
 
-const rooms = new Map();
-const ROOM_MAX_AGE = 1000 * 60 * 60 * 24;
+const ROOM_TTL_SECONDS = 60 * 60 * 24;
 const HOST_RECONNECT_GRACE_MS = Number(process.env.WATCH_TOGETHER_HOST_RECONNECT_GRACE_MS || 15000);
+// Timeout handles are process-local and cannot be serialized to Redis.
+// This is acceptable for single-instance operation. For full multi-instance
+// support, move reconnect grace handling to a distributed scheduler.
+const reconnectTimeouts = new Map();
 
 const createRoomId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
@@ -42,10 +46,33 @@ const ensureMovieExists = async (movieId) => {
 	});
 };
 
-const clearHostReconnectTimeout = (room) => {
-	if (room.hostReconnectTimeout) {
-		clearTimeout(room.hostReconnectTimeout);
-		room.hostReconnectTimeout = null;
+const getRoom = async (roomId) => {
+	const roomData = await redis.get(roomKey(roomId));
+	if (!roomData) {
+		return null;
+	}
+
+	try {
+		return JSON.parse(roomData);
+	} catch (error) {
+		await redis.del(roomKey(roomId));
+		return null;
+	}
+};
+
+const saveRoom = async (room) => {
+	await redis.set(roomKey(room.roomId), JSON.stringify(room), 'EX', ROOM_TTL_SECONDS);
+};
+
+const deleteRoom = async (roomId) => {
+	await redis.del(roomKey(roomId));
+};
+
+const clearHostReconnectTimeout = (roomId) => {
+	const timeoutHandle = reconnectTimeouts.get(roomId);
+	if (timeoutHandle) {
+		clearTimeout(timeoutHandle);
+		reconnectTimeouts.delete(roomId);
 	}
 };
 
@@ -75,12 +102,11 @@ const createWatchTogetherRouter = () => {
 		}
 
 		const roomId = createRoomId();
-		rooms.set(roomId, {
+		await saveRoom({
 			roomId,
 			movieId: req.params.movieId,
 			hostUserId: user.id,
 			hostSocketId: null,
-			hostReconnectTimeout: null,
 			hostDisconnectedAt: null,
 			currentTime: 0,
 			isPlaying: false,
@@ -102,7 +128,7 @@ const createWatchTogetherRouter = () => {
 			return res.status(404).json({ detail: 'Not found.' });
 		}
 
-		const room = rooms.get(req.params.roomId);
+		const room = await getRoom(req.params.roomId);
 		if (!room) {
 			return res.status(404).json({ detail: 'Not found.' });
 		}
@@ -132,7 +158,7 @@ const registerWatchTogetherHandlers = (io) => {
 				return;
 			}
 
-			const room = rooms.get(roomId);
+			const room = await getRoom(roomId);
 			if (!room) {
 				socket.emit('room_closed', { roomId });
 				return;
@@ -144,13 +170,14 @@ const registerWatchTogetherHandlers = (io) => {
 			socket.data.isHost = room.hostUserId === user.id;
 
 			if (socket.data.isHost) {
-				clearHostReconnectTimeout(room);
+				clearHostReconnectTimeout(roomId);
 				room.hostSocketId = socket.id;
 				room.hostDisconnectedAt = null;
 				socket.to(roomId).emit('host_reconnected', { roomId });
 			}
 
 			room.updatedAt = Date.now();
+			await saveRoom(room);
 
 			socket.emit('room_joined', {
 				roomId,
@@ -170,8 +197,8 @@ const registerWatchTogetherHandlers = (io) => {
 			}
 		});
 
-		socket.on('play', (payload = {}) => {
-			const room = rooms.get(payload.roomId);
+		socket.on('play', async (payload = {}) => {
+			const room = await getRoom(payload.roomId);
 			if (!room || room.hostSocketId !== socket.id) {
 				return;
 			}
@@ -179,13 +206,14 @@ const registerWatchTogetherHandlers = (io) => {
 			room.currentTime = Number(payload.time || 0);
 			room.isPlaying = true;
 			room.updatedAt = Date.now();
+			await saveRoom(room);
 			socket.to(payload.roomId).emit('play', buildSyncPayload(payload.roomId, room.currentTime, true, {
 				serverTime: payload.serverTime,
 			}));
 		});
 
-		socket.on('pause', (payload = {}) => {
-			const room = rooms.get(payload.roomId);
+		socket.on('pause', async (payload = {}) => {
+			const room = await getRoom(payload.roomId);
 			if (!room || room.hostSocketId !== socket.id) {
 				return;
 			}
@@ -193,26 +221,28 @@ const registerWatchTogetherHandlers = (io) => {
 			room.currentTime = Number(payload.time || 0);
 			room.isPlaying = false;
 			room.updatedAt = Date.now();
+			await saveRoom(room);
 			socket.to(payload.roomId).emit('pause', buildSyncPayload(payload.roomId, room.currentTime, false, {
 				serverTime: payload.serverTime,
 			}));
 		});
 
-		socket.on('seek', (payload = {}) => {
-			const room = rooms.get(payload.roomId);
+		socket.on('seek', async (payload = {}) => {
+			const room = await getRoom(payload.roomId);
 			if (!room || room.hostSocketId !== socket.id) {
 				return;
 			}
 
 			room.currentTime = Number(payload.time || 0);
 			room.updatedAt = Date.now();
+			await saveRoom(room);
 			socket.to(payload.roomId).emit('seek', buildSyncPayload(payload.roomId, room.currentTime, room.isPlaying, {
 				serverTime: payload.serverTime,
 			}));
 		});
 
-		socket.on('sync', (payload = {}) => {
-			const room = rooms.get(payload.roomId);
+		socket.on('sync', async (payload = {}) => {
+			const room = await getRoom(payload.roomId);
 			if (!room || room.hostSocketId !== socket.id) {
 				return;
 			}
@@ -220,6 +250,7 @@ const registerWatchTogetherHandlers = (io) => {
 			room.currentTime = Number(payload.time || 0);
 			room.isPlaying = Boolean(payload.isPlaying);
 			room.updatedAt = Date.now();
+			await saveRoom(room);
 
 			const syncPayload = buildSyncPayload(payload.roomId, room.currentTime, room.isPlaying, {
 				serverTime: payload.serverTime,
@@ -233,13 +264,13 @@ const registerWatchTogetherHandlers = (io) => {
 			socket.to(payload.roomId).emit('sync', syncPayload);
 		});
 
-		socket.on('disconnect', () => {
+		socket.on('disconnect', async () => {
 			const { roomId } = socket.data || {};
 			if (!roomId) {
 				return;
 			}
 
-			const room = rooms.get(roomId);
+			const room = await getRoom(roomId);
 			if (!room) {
 				return;
 			}
@@ -248,34 +279,28 @@ const registerWatchTogetherHandlers = (io) => {
 				room.hostSocketId = null;
 				room.hostDisconnectedAt = Date.now();
 				room.updatedAt = Date.now();
+				await saveRoom(room);
 				io.to(roomId).emit('host_disconnected', {
 					roomId,
 					reconnectGraceMs: HOST_RECONNECT_GRACE_MS,
 				});
-				clearHostReconnectTimeout(room);
-				room.hostReconnectTimeout = setTimeout(() => {
-					const currentRoom = rooms.get(roomId);
+				clearHostReconnectTimeout(roomId);
+				const timeoutHandle = setTimeout(async () => {
+					const currentRoom = await getRoom(roomId);
 					if (!currentRoom || currentRoom.hostSocketId) {
 						return;
 					}
 
-					rooms.delete(roomId);
+					await deleteRoom(roomId);
+					reconnectTimeouts.delete(roomId);
 					io.to(roomId).emit('room_closed', { roomId });
 				}, HOST_RECONNECT_GRACE_MS);
+
+				reconnectTimeouts.set(roomId, timeoutHandle);
 			}
 		});
 	});
 };
-
-setInterval(() => {
-	const now = Date.now();
-	for (const [roomId, room] of rooms.entries()) {
-		if (now - room.updatedAt > ROOM_MAX_AGE) {
-			clearHostReconnectTimeout(room);
-			rooms.delete(roomId);
-		}
-	}
-}, 1000 * 60 * 30);
 
 module.exports = {
 	createWatchTogetherRouter,
