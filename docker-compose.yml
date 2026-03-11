@@ -41,12 +41,25 @@ services:
       context: ./node-media-server
     depends_on:
       - backend
+      - redis
     volumes:
       - ${MEDIA_ROOT}:/app/media
     environment:
       - PORT=8080
       - DJANGO_URL_PATH=http://web-server
       - ENV_MODE=production
+      - REDIS_URL=redis://redis:6379
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - freeflix_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web-server: # for RFC 1034 / 1035 compliant hostname resolution
     image: nginx
@@ -64,3 +77,4 @@ services:
 
 volumes:
   freeflix_mysql_data:
+  freeflix_redis_data:
