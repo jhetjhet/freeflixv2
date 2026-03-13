@@ -1,5 +1,4 @@
-const {Sequelize} = require('sequelize');
-const { options } = require('./models/Chunk');
+const { Sequelize } = require('sequelize');
 
 module.exports = new Sequelize({
    dialect: 'sqlite',

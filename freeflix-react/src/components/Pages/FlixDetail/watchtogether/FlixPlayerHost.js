@@ -37,7 +37,7 @@ export const FlixPlayerHost = ({
 
 	const tracks = useMemo(() => subtitles.map(sub => ({
 		kind: 'subtitles',
-		src: process.env.REACT_APP_MEDIA_URL + sub.subtitle_url,
+		src: sub.subtitle,
 		label: sub.name,
 		srcLang: sub.srclng,
 		default: sub.is_default,

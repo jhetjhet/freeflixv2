@@ -239,9 +239,9 @@ const FlixSubtitles = ({
                         </select>
                     </div>
 
-                    {sub.subtitle_url && (
+                    {sub.subtitle && (
                         <small className="text-muted d-block mt-1 pl-4" style={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>
-                            {sub.subtitle_url}
+                            {sub.subtitle}
                         </small>
                     )}
 
@@ -268,7 +268,7 @@ const FlixSubtitles = ({
 
                         <Button
                             size="sm"
-                            disabled={(!sub?.__subtitle && !sub?.subtitle_url) || !sub.name || sub?.__is_loading || sub?.__is_converting}
+                            disabled={(!sub?.__subtitle && !sub?.subtitle) || !sub.name || sub?.__is_loading || sub?.__is_converting}
                             variant="success"
                             className="mr-2"
                             onClick={() => {

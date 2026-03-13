@@ -71,10 +71,11 @@ const FileUploader = forwardRef(({
         var form = new FormData();
         form.append("filename", file.name);
         form.append("chunk", chunk);
+        const isFinalChunk = (start + chunk.size) >= total;
 
         let url = `${basePath}/upload/`;
 
-        if (remainSize <= 0) {
+        if (isFinalChunk) {
             form.append("tmdb_id", tmdbId);
 
             if (seasonNumber && episodeNumber) {

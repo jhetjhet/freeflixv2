@@ -40,8 +40,6 @@ class GenreSerializer(serializers.ModelSerializer):
 		return obj.series_set.all().count()
 
 class SubtitleSerializer(serializers.ModelSerializer):
-	subtitle_url = serializers.SerializerMethodField()
-
 	class Meta:
 		model = SubtitleBase
 		fields = [
@@ -49,15 +47,9 @@ class SubtitleSerializer(serializers.ModelSerializer):
 			'name',
 			'is_default',
 			'subtitle',
-			'subtitle_url',
 			'srclng',
 		]
-		extra_kwargs = {'subtitle': {'required': True, 'write_only': True}}
-
-	def get_subtitle_url(self, obj):
-		if obj.subtitle:
-			return f"{settings.MEDIA_URL}{obj.subtitle.name}"  # returns the relative path, not the full URL
-		return None
+		extra_kwargs = {'subtitle': {'required': True }}
 
 class MovieSubtitleSerializer(SubtitleSerializer):
 	movie = serializers.SlugRelatedField(read_only=True, slug_field='tmdb_id')

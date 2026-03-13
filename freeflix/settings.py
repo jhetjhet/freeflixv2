@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'corsheaders',
+    'storages',
 
     # apps
     'client.apps.ClientConfig',
@@ -172,6 +173,29 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# S3 Storage Configuration
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
+        'OPTIONS': {
+            'access_key': os.getenv('AWS_ACCESS_KEY_ID'),
+            'secret_key': os.getenv('AWS_SECRET_ACCESS_KEY'),
+            'bucket_name': os.getenv('S3_BUCKET_NAME'),
+            'region_name': os.getenv('AWS_REGION'),
+            'endpoint_url': os.getenv('S3_ENDPOINT'),
+            'use_ssl': True,
+            'verify': True,
+            'addressing_style': 'path',
+            'signature_version': 's3v4',
+            'querystring_auth': True,
+            'querystring_expire': int(os.getenv('PRESIGNED_URL_EXPIRES_SECONDS', 300)),
+        }
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage", # Static stays local
+    },
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
