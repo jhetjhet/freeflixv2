@@ -17,6 +17,19 @@ const EMPTY_BUFFER = Buffer.alloc(0);
 
 const ALLOWED_EXTENSIONS = ['mp4', 'mkv', 'webm', 'avi', 'mov', 'flv', 'ogv'];
 
+// Validates a value is a safe positive integer string to prevent path injection in URLs
+const validatePositiveInteger = (value, name) => {
+    const str = String(value ?? '').trim();
+    const num = parseInt(str, 10);
+    if (!Number.isInteger(num) || num <= 0 || String(num) !== str) {
+        throw Object.assign(new Error(`Invalid ${name}: must be a positive integer.`), { status: 400 });
+    }
+    return num;
+};
+
+// Only allows UUID-format clientUploadIds to prevent injection in DB queries
+const CLIENT_UPLOAD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const buildPendingObjectKey = (clientUploadId, filename) => {
     const extension = Path.extname(filename || '').toLowerCase();
     return `uploads/incomplete/${clientUploadId}${extension}`;
@@ -68,7 +81,7 @@ const validateCompleteFields = (fields) => {
 };
 
 const parseMultipartRequest = (req, maxChunkSize) => new Promise((resolve, reject) => {
-    const busboy = new Busboy({
+    const busboy = Busboy({
         headers: req.headers,
         limits: {
             files: 1,
@@ -76,7 +89,7 @@ const parseMultipartRequest = (req, maxChunkSize) => new Promise((resolve, rejec
         },
     });
 
-    const fields = {};
+    const fields = Object.create(null);
     const fileChunks = [];
     let fileFieldSeen = false;
     let fileMimeType = 'application/octet-stream';
@@ -249,10 +262,13 @@ const flushBufferedPart = async (upload) => {
 
 const getDjangoApiUrl = (fields) => {
     const baseApi = `${process.env.DJANGO_URL_PATH}/api`;
+    const tmdbId = validatePositiveInteger(fields.tmdb_id, 'tmdb_id');
     if (fields.season_number && fields.episode_number) {
-        return `${baseApi}/series/${fields.tmdb_id}/season/${fields.season_number}/episode/${fields.episode_number}/`;
+        const season = validatePositiveInteger(fields.season_number, 'season_number');
+        const episode = validatePositiveInteger(fields.episode_number, 'episode_number');
+        return `${baseApi}/series/${tmdbId}/season/${season}/episode/${episode}/`;
     }
-    return `${baseApi}/movie/${fields.tmdb_id}/`;
+    return `${baseApi}/movie/${tmdbId}/`;
 };
 
 const getFinalObjectKey = async (fields, extension) => {
@@ -338,6 +354,10 @@ function UploadMiddleware(maxChunkSize = 10485760) {
 UploadMiddleware.prototype.continue = function () {
     return [async function (req, res) {
         try {
+            if (!CLIENT_UPLOAD_ID_RE.test(req.params.chunkid)) {
+                return res.status(400).end();
+            }
+
             const upload = await Upload.findOne({
                 where: { clientUploadId: req.params.chunkid },
             });
@@ -357,6 +377,10 @@ UploadMiddleware.prototype.continue = function () {
 
 UploadMiddleware.prototype.processChunkUpload = async function (req, res, next, { isComplete }) {
     try {
+        if (!CLIENT_UPLOAD_ID_RE.test(req.params.chunkid)) {
+            return res.status(400).send('Invalid upload ID.');
+        }
+
         validateAllowedExtension(req.fields.filename);
 
         const upload = await getOrCreateUpload({
@@ -487,6 +511,10 @@ UploadMiddleware.prototype.cancel = function () {
     return [
         async function (req, res) {
             try {
+                if (!CLIENT_UPLOAD_ID_RE.test(req.params.chunkid)) {
+                    return res.status(400).end();
+                }
+
                 const upload = await Upload.findOne({
                     where: { clientUploadId: req.params.chunkid },
                 });
