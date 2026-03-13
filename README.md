@@ -11,7 +11,8 @@ A full-featured media streaming platform built with modern web technologies. Upl
 ## Features
 
 - 🎬 TMDB integration for detailed movie/series information
-- ⚡ Chunked file uploads with pause/resume capability
+- ⚡ Chunked file uploads with pause/resume/cancel capability backed by S3 multipart upload
+- ☁️ S3-compatible object storage for all video files (AWS S3, iDrive E2, etc.)
 - 📺 Support for series with seasons and episodes
 - 🎨 Responsive, mobile-friendly design
 - 🔍 Advanced filtering and browsing
@@ -52,7 +53,7 @@ Room state is stored in Redis (instead of in-memory maps) so sessions are more r
 
 - **Frontend**: React 16.13.1 + Tailwind CSS
 - **API Backend**: Django 4.2.23 + Django REST Framework + Simple JWT + Djoser
-- **Media Backend**: Node.js + Socket.IO + Redis (`ioredis`)
+- **Media Backend**: Node.js + Socket.IO + Redis (`ioredis`) + S3-compatible object storage (`@aws-sdk/client-s3`)
 - **Streaming**: Nginx
 - **Server**: Nginx + Gunicorn
 - **Containerization**: Docker & Docker Compose
@@ -86,5 +87,21 @@ Room state is stored in Redis (instead of in-memory maps) so sessions are more r
    - Set up Python virtual environment and install dependencies
    - Set up Node.js for the media backend
    - Run migrations and start services
+
+## Environment Variables
+
+Key variables required in `.env`:
+
+| Variable | Description |
+|---|---|
+| `AWS_REGION` | S3 bucket region |
+| `AWS_ACCESS_KEY_ID` | S3 access key |
+| `AWS_SECRET_ACCESS_KEY` | S3 secret key |
+| `S3_BUCKET_NAME` | Bucket name for video storage |
+| `S3_ENDPOINT` | S3-compatible endpoint URL (omit for AWS, set for providers like iDrive E2) |
+| `S3_FORCE_PATH_STYLE` | Set `true` for non-AWS S3-compatible providers |
+| `PRESIGNED_URL_EXPIRES_SECONDS` | Expiry duration for presigned streaming URLs (default: 300) |
+| `NODE_SERVICE_TOKEN` | Shared secret for node-media-server → Django internal requests |
+| `DJANGO_URL_PATH` | Internal base URL of the Django backend (used by the media server) |
 
 
