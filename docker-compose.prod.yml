@@ -6,6 +6,8 @@ services:
     develop: !reset null
     stdin_open: false
     tty: false
+    volumes: !reset null
+    command: !reset null
     environment:
       - NODE_ENV=production
 
@@ -17,6 +19,7 @@ services:
   node_backend:
     image: snits/freeflix-node-server:${FREEFLIX_NODE_VERSION:-latest}
     build: !reset null
+    volumes: !reset null
     command: pm2-runtime start index.js --name node-media-server
 
   web-server:
