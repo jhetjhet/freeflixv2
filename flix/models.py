@@ -1,10 +1,11 @@
 from abc import abstractmethod
 from django.db import models
 from django.conf import settings
+from django.core.files.storage import default_storage
 from uuid import uuid4
-from os.path import join, splitext
+from os.path import splitext
+from pathlib import PurePosixPath
 from django.utils import timezone
-from pathlib import Path
 import re
 
 FLIX_TYPES = ('movie', 'series')
@@ -18,15 +19,11 @@ class MediaBase:
 
 	@abstractmethod
 	def video_url(self):
-		return f"{settings.MEDIA_URL}{self.video_path()}"
+		return default_storage.url(self.video_path())
 
 	@abstractmethod
 	def video_path_exists(self):
-		media_base_path = Path(f"{settings.MEDIA_ROOT}/{self.video_path()}")
-
-		matches = list(media_base_path.parent.glob('video.*'))
-
-		return bool(matches)
+		return default_storage.exists(self.video_path())
 
 class TMDBModel(models.Model):
 	tmdb_id = models.CharField(max_length=32, null=True, blank=True, unique=True)
@@ -38,12 +35,9 @@ class TMDBModel(models.Model):
 def subtitle_by_vid_path(instance, filename):
 	_, ext = splitext(filename)
 	media = instance.media
-
-	base_media_path = Path(media.video_path()).parent
-
-	filename = invalid_file_chars.sub('-', instance.name)
-
-	return join(base_media_path, 'subtitles', f"{filename}{ext}")
+	base = PurePosixPath(media.video_path()).parent
+	filename_safe = invalid_file_chars.sub('-', instance.name)
+	return (base / 'subtitles' / f"{filename_safe}{ext}").as_posix()
 class SubtitleBase(models.Model):
 	name = models.CharField(max_length=128)
 	is_default = models.BooleanField(default=False)
@@ -95,9 +89,10 @@ class Genre(TMDBModel):
 		return self.name
 
 class Movie(FlixBaseModel, MediaBase):
+	extension = models.CharField(max_length=8, default='mp4')
 
 	def video_path(self):
-		return f'movies/{self.tmdb_id}-{self.title.replace(" ", "-")}/video'
+		return f'movies/{self.tmdb_id}-{self.title.replace(" ", "-")}/video.{self.extension}'
 	
 	def __str__(self):
 		return self.title
@@ -115,9 +110,10 @@ class Episode(TMDBModel, MediaBase):
 	season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='episodes')
 	episode_number = models.IntegerField()
 	title = models.CharField(max_length=256)
+	extension = models.CharField(max_length=8, default='mp4')
 
 	def video_path(self):
-		return f'series/{self.season.series.tmdb_id}-{self.season.series.title.replace(" ", "-")}/{self.season.title.replace(" ", "-")}/episode-{self.episode_number}-{self.title.replace(" ", "-")}/video'
+		return f'series/{self.season.series.tmdb_id}-{self.season.series.title.replace(" ", "-")}/{self.season.title.replace(" ", "-")}/episode-{self.episode_number}-{self.title.replace(" ", "-")}/video.{self.extension}'
 
 	def __str__(self):
 		return self.title 

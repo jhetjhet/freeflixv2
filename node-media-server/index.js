@@ -4,12 +4,10 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
-const Chunk = require('./database/models/Chunk');
+const { Upload, UploadPart } = require('./database/models');
 const uploadRouter = require('./routes/upload');
 const { createWatchTogetherRouter, registerWatchTogetherHandlers } = require('./watch-together');
 const axios = require('axios');
-
-Chunk.sync({ alter: true });
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +45,16 @@ app.use('/watch-together', createWatchTogetherRouter());
 
 registerWatchTogetherHandlers(io);
 
-server.listen(PORT, () => {
-    console.log('Server running...', PORT);
+const startServer = async () => {
+    await Upload.sync({ alter: true });
+    await UploadPart.sync({ alter: true });
+
+    server.listen(PORT, () => {
+        console.log('Server running...', PORT);
+    });
+};
+
+startServer().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
 });

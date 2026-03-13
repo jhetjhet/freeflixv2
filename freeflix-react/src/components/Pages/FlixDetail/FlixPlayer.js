@@ -60,7 +60,7 @@ const VideoPlayer = ({ id, video_url, subtitles = [] }) => {
 
 	const tracks = useMemo(() => subtitles.map(sub => ({
 		kind: 'subtitles',
-		src: process.env.REACT_APP_MEDIA_URL + sub.subtitle_url,
+		src: sub.subtitle,
 		label: sub.name,
 		srcLang: sub.srclng,
 		default: sub.is_default,
@@ -146,7 +146,7 @@ const VideoPlayer = ({ id, video_url, subtitles = [] }) => {
 						Continue watching from <b>{formatTime(savedTime)}</b>?
 					</p>
 
-					<button 
+					<button
 						onClick={handleResume}
 						style={{
 							background: "transparent",
@@ -173,7 +173,10 @@ const VideoPlayer = ({ id, video_url, subtitles = [] }) => {
 				onEnded={handleEnded}
 				config={{
 					file: {
-						tracks: tracks
+						tracks: tracks,
+						attributes: {
+							crossOrigin: "anonymous"
+						}
 					}
 				}}
 			/>
@@ -221,8 +224,8 @@ export const WatchTogetherPlayer = ({
 	subtitles = [],
 	isHost = false,
 	syncInterval = 4000,
-	onRoomClosed = () => {},
-	onError = () => {},
+	onRoomClosed = () => { },
+	onError = () => { },
 }) => {
 	if (isHost) {
 		return (

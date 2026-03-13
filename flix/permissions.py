@@ -1,4 +1,16 @@
+from django.conf import settings
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+
+class NodeServicePermission(BasePermission):
+    """Allows requests from the internal node media server via a shared secret token."""
+
+    def has_permission(self, request, view):
+        expected = getattr(settings, 'NODE_SERVICE_TOKEN', '')
+        if not expected:
+            return False
+        token = request.META.get('HTTP_X_NODE_SERVICE_TOKEN', '')
+        return bool(token) and token == expected
 
 
 class FlixModelPermission(BasePermission):

@@ -30,6 +30,15 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_FORCE_PATH_STYLE=${S3_FORCE_PATH_STYLE}
+      - PRESIGNED_URL_EXPIRES_SECONDS=${PRESIGNED_URL_EXPIRES_SECONDS}
     depends_on:
       - mysql
     volumes:
@@ -39,16 +48,26 @@ services:
   node_backend:
     build:
       context: ./node-media-server
+    env_file:
+      - .env
     depends_on:
       - backend
       - redis
     volumes:
       - ${MEDIA_ROOT}:/app/media
     environment:
+      - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
       - PORT=8080
       - DJANGO_URL_PATH=http://web-server
       - ENV_MODE=production
       - REDIS_URL=redis://redis:6379
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_FORCE_PATH_STYLE=${S3_FORCE_PATH_STYLE}
+      - PRESIGNED_URL_EXPIRES_SECONDS=${PRESIGNED_URL_EXPIRES_SECONDS}
 
   redis:
     image: redis:7-alpine

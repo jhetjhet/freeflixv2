@@ -5,3 +5,4 @@ django-cors-headers==3.6.0
 djangorestframework==3.16.0
 mysqlclient==2.2.7
 django-querysetsequence==0.13
+django-storages[s3]>=1.14.0
