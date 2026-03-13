@@ -5,14 +5,11 @@ services:
       target: build
     env_file:
       - ./freeflix-react/.env.development
+    volumes:
+      - ./freeflix-react:/app
+      - /app/node_modules
     develop:
       watch:
-        - action: sync
-          path: ./freeflix-react
-          target: /app
-          initial_sync: true
-          ignore:
-            - node_modules/
         - action: rebuild
           path: ./freeflix-react/package.json
     stdin_open: true
@@ -31,13 +28,11 @@ services:
   node_backend:
     environment:
       - ENV_MODE=development
+    volumes:
+      - ./node-media-server:/app
+      - /app/node_modules
     develop:
       watch:
-        - action: sync
-          path: ./node-media-server
-          target: /app
-          ignore:
-            - node_modules/
         - action: rebuild
           path: ./node-media-server/package.json
     command: npm start
