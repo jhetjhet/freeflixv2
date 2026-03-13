@@ -101,7 +101,7 @@ from rest_framework.filters import (
     OrderingFilter,
 )
 from .filter import SequenceSearchFilter
-from .permissions import FlixModelPermission
+from .permissions import FlixModelPermission, NodeServicePermission
 from queryset_sequence import QuerySetSequence
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -252,7 +252,7 @@ class MovieDetail(RetrieveUpdateDestroyAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     lookup_field = 'tmdb_id'
-    permission_classes = [FlixModelPermission]
+    permission_classes = [NodeServicePermission | FlixModelPermission]
     permission_model = Movie
 
 class SeriesList(ListCreateAPIView):
@@ -398,7 +398,7 @@ class EpisodeList(ListCreateAPIView):
 class EpisodeDetail(RetrieveUpdateDestroyAPIView):
     queryset = Episode.objects.all()
     serializer_class = EpisodeSerializer
-    permission_classes = [FlixModelPermission]
+    permission_classes = [NodeServicePermission | FlixModelPermission]
     permission_model = Episode
     lookup_fields = [
         'series_tmdb_id',

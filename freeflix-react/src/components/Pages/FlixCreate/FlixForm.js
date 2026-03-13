@@ -19,7 +19,7 @@ class FlixForm extends React.Component {
 			subt: null,
 			flix: null,
 			cancelToken: null,
-			pauseUploadVideo: false,
+			isRegisterLoading: false,
 			isGetFlixLoading: false,
 			toastMessage: '',
 			showToast: false,
@@ -291,18 +291,32 @@ class FlixForm extends React.Component {
 												</Button>
 
 												{!flix && (
-													<Button size="sm" variant="success py-0 px-1" onClick={() => {
-														this.submitFlix(() => {
-															this.fileUploadRef.current.setPause(false);
-														});
-													}}>
+													<Button
+														disabled={this.state.isRegisterLoading}
+														size="sm"
+														variant="success"
+														onClick={() => {
+															this.setState({ isRegisterLoading: true });
+
+															this.submitFlix(() => {
+																if (this.state.video && this.fileUploadRef?.current) {
+																	this.fileUploadRef.current.setPause(false);
+																}
+
+																this.setState({ isRegisterLoading: false });
+															});
+														}}>
 														register
 													</Button>
 												)}
 
 												{(flix && subt) && (
 													<Button size="sm" variant="success py-0 px-1" onClick={() => {
-														this.patchFlix();
+														this.setState({ isRegisterLoading: true });
+
+														this.patchFlix(() => {
+															this.setState({ isRegisterLoading: false });
+														});
 													}}>
 														update
 													</Button>

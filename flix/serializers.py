@@ -96,6 +96,7 @@ class MovieSerializer(serializers.ModelSerializer):
 			'genres',
 			'poster_path',
 			'subtitles',
+			'extension',
 		]
 		read_only_fields = [
 			'id',
@@ -189,6 +190,7 @@ class EpisodeSerializer(serializers.ModelSerializer):
 			'video_url',
 			'video_path_exists',
 			'subtitles',
+			'extension',
 			# 'subtitle_url',
 			# 'video', 
 			# 'video_url',

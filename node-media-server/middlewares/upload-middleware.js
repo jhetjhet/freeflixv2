@@ -247,16 +247,16 @@ const flushBufferedPart = async (upload) => {
     return upload;
 };
 
-const getFinalObjectKey = async (fields, extension) => {
-    let requestUrl = '';
+const getDjangoApiUrl = (fields) => {
     const baseApi = `${process.env.DJANGO_URL_PATH}/api`;
-
     if (fields.season_number && fields.episode_number) {
-        requestUrl = `${baseApi}/series/${fields.tmdb_id}/season/${fields.season_number}/episode/${fields.episode_number}/`;
-    } else {
-        requestUrl = `${baseApi}/movie/${fields.tmdb_id}/`;
+        return `${baseApi}/series/${fields.tmdb_id}/season/${fields.season_number}/episode/${fields.episode_number}/`;
     }
+    return `${baseApi}/movie/${fields.tmdb_id}/`;
+};
 
+const getFinalObjectKey = async (fields, extension) => {
+    const requestUrl = getDjangoApiUrl(fields);
     const response = await axios.get(requestUrl);
     const flixPath = normalizeObjectKey(response.data.video_path);
 
@@ -266,7 +266,23 @@ const getFinalObjectKey = async (fields, extension) => {
         });
     }
 
-    return `${flixPath}.${extension}`;
+    // Strip existing extension from the stored path then append the real one
+    const basePath = flixPath.replace(/\.[^/.]+$/, '');
+    return `${basePath}.${extension}`;
+};
+
+const patchDjangoExtension = async (fields, extension) => {
+    const requestUrl = getDjangoApiUrl(fields);
+    await axios.patch(
+        requestUrl,
+        { extension },
+        {
+            headers: {
+                'X-Node-Service-Token': process.env.NODE_SERVICE_TOKEN || '',
+                'Content-Type': 'application/json',
+            },
+        },
+    );
 };
 
 function UploadMiddleware(maxChunkSize = 10485760) {
@@ -420,6 +436,8 @@ UploadMiddleware.prototype.processChunkUpload = async function (req, res, next, 
                 await deleteObject({ key: upload.objectKey });
                 upload.objectKey = finalObjectKey;
             }
+
+            await patchDjangoExtension(req.fields, extension);
 
             upload.status = 'completed';
             upload.completedAt = new Date();

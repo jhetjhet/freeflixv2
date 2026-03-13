@@ -1,9 +1,10 @@
-FROM node:14-alpine AS build
+FROM node:18.20.0-bullseye-slim AS build
 
 WORKDIR /app
 COPY . /app
 
 RUN npm install
+ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN npm run build
 
 EXPOSE 3000

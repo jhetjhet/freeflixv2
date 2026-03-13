@@ -89,9 +89,10 @@ class Genre(TMDBModel):
 		return self.name
 
 class Movie(FlixBaseModel, MediaBase):
+	extension = models.CharField(max_length=8, default='mp4')
 
 	def video_path(self):
-		return f'movies/{self.tmdb_id}-{self.title.replace(" ", "-")}/video.mp4'
+		return f'movies/{self.tmdb_id}-{self.title.replace(" ", "-")}/video.{self.extension}'
 	
 	def __str__(self):
 		return self.title
@@ -109,9 +110,10 @@ class Episode(TMDBModel, MediaBase):
 	season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='episodes')
 	episode_number = models.IntegerField()
 	title = models.CharField(max_length=256)
+	extension = models.CharField(max_length=8, default='mp4')
 
 	def video_path(self):
-		return f'series/{self.season.series.tmdb_id}-{self.season.series.title.replace(" ", "-")}/{self.season.title.replace(" ", "-")}/episode-{self.episode_number}-{self.title.replace(" ", "-")}/video.mp4'
+		return f'series/{self.season.series.tmdb_id}-{self.season.series.title.replace(" ", "-")}/{self.season.title.replace(" ", "-")}/episode-{self.episode_number}-{self.title.replace(" ", "-")}/video.{self.extension}'
 
 	def __str__(self):
 		return self.title 
