@@ -14,11 +14,9 @@ class TMDBPicker extends React.Component {
 		super(props);
 		this.maxPageLent = 6;
 		this.state = {
-			title: '',
+			inputTitle: props.title,
 			isTmdbBtnLoading: false,
 			TMDBSearchResults: [],
-
-			currPage: 1,
 			totalPage: 0,
 		}
 
@@ -26,29 +24,59 @@ class TMDBPicker extends React.Component {
 		this.loadTmdb = this.loadTmdb.bind(this);
 	}
 
-	onPageSelect(page, event){
-		this.setState({currPage: page});
-		this.requestTMDB(page);
+	componentDidMount() {
+		if (this.props.title && this.props.page) {
+			this.requestTMDB(this.props.page);
+		}
+	}
+
+	componentDidUpdate(prevProps) {
+		const titleChanged = prevProps.title !== this.props.title;
+		const pageChanged = prevProps.page !== this.props.page;
+		const typeChanged = prevProps.flixType !== this.props.flixType;
+
+		if (typeChanged) {
+			this.setState({ TMDBSearchResults: [], totalPage: 0, inputTitle: '' });
+			return;
+		}
+
+		// Keep local input in sync when URL title changes (e.g. browser back/forward)
+		if (titleChanged) {
+			this.setState({ inputTitle: this.props.title });
+		}
+
+		if ((titleChanged || pageChanged) && this.props.title) {
+			this.requestTMDB(this.props.page);
+		}
+	}
+
+	onPageSelect(page){
+		this.props.onParamsChange({ page });
 	}
 
 	onTitleInputChange(event){
-		this.setState({title: event.target.value});
+		// Only update local state — do NOT push to URL on every keystroke
+		this.setState({ inputTitle: event.target.value });
 	}
 
 	loadTmdb(event){
 		event.preventDefault();
-		this.setState({
-			isTmdbBtnLoading: true,
-			currPage: 1,
-		});
-		this.requestTMDB(1);
+		const { inputTitle } = this.state;
+		if (!inputTitle) return;
+		// Push title + reset page to URL; componentDidUpdate will fire the API call
+		this.props.onParamsChange({ title: inputTitle, page: 1 });
+		// If title and page are already the same in the URL, componentDidUpdate won't fire, so call directly
+		if (this.props.title === inputTitle && this.props.page === 1) {
+			this.requestTMDB(1);
+		}
 	}
 
 	requestTMDB(page){
+		this.setState({ isTmdbBtnLoading: true });
 		const conf = {
 			params: {
 				api_key: process.env.REACT_APP_TMDB_API_KEY,
-				query: this.state.title,
+				query: this.props.title,
 				page: page,
 			},
 		}
@@ -67,17 +95,19 @@ class TMDBPicker extends React.Component {
 	}
 
 	render(){
+		const { page: currPage } = this.props;
+		const { totalPage } = this.state;
+
 		var pagination = null;
-		if(this.state.totalPage > 1){
+		if(totalPage > 1){
 			var paginationItems = [];
 			const maxPageLent = this.maxPageLent;
-			const {currPage, totalPage} = this.state;
 			var maxPageHalf = Math.floor(maxPageLent / 2) + 1;
 			var startPage = currPage >= maxPageHalf ? currPage - Math.floor(maxPageLent / 2) : 1;
 			var endPage = (currPage + Math.floor(maxPageLent / 2)) < totalPage ? (currPage + Math.floor(maxPageLent / 2)) : totalPage;
 			for(let page = startPage; page <= endPage; page++)
 				paginationItems.push((
-					<Pagination.Item key={page} onClick={this.onPageSelect.bind(this, page)} active={currPage === page}>
+					<Pagination.Item key={page} onClick={() => this.onPageSelect(page)} active={currPage === page}>
 						{page}
 					</Pagination.Item>
 				));
@@ -85,10 +115,10 @@ class TMDBPicker extends React.Component {
 					<Pagination>
 						{startPage !== 1 &&
 							<React.Fragment>
-								<Pagination.Item onClick={this.onPageSelect.bind(this, 1)}>
+								<Pagination.Item onClick={() => this.onPageSelect(1)}>
 									{1}
 								</Pagination.Item>
-								<Pagination.Prev onClick={this.onPageSelect.bind(this, currPage-1)} />
+								<Pagination.Prev onClick={() => this.onPageSelect(currPage - 1)} />
 								<Pagination.Ellipsis disabled />
 							</React.Fragment>
 						}
@@ -96,8 +126,8 @@ class TMDBPicker extends React.Component {
 						{endPage < totalPage &&
 							<React.Fragment>
 								<Pagination.Ellipsis disabled />
-								<Pagination.Next onClick={this.onPageSelect.bind(this, currPage+1)} />
-								<Pagination.Item onClick={this.onPageSelect.bind(this, totalPage)}>
+								<Pagination.Next onClick={() => this.onPageSelect(currPage + 1)} />
+								<Pagination.Item onClick={() => this.onPageSelect(totalPage)}>
 									{totalPage}
 								</Pagination.Item>
 							</React.Fragment>
@@ -109,11 +139,11 @@ class TMDBPicker extends React.Component {
 			<div className="tmdb-picker">
 				<form onSubmit={this.loadTmdb}>
 					<div className="w-100 d-flex mb-2">
-						<input placeholder="Search for a movie or series" type="text" className="w-100 px-2 py-1 rounded-left" onChange={this.onTitleInputChange} value={this.state.title} />
-						<Button 
-							type="submit"
-							className="tmdb-load-btn"
-							disabled={this.props.disabled || this.state.isTmdbBtnLoading || this.state.title.length === 0}>
+				<input placeholder="Search for a movie or series" type="text" className="w-100 px-2 py-1 rounded-left" onChange={this.onTitleInputChange} value={this.state.inputTitle} />
+					<Button 
+						type="submit"
+						className="tmdb-load-btn"
+						disabled={this.props.disabled || this.state.isTmdbBtnLoading || this.state.inputTitle.length === 0}>
 							{this.state.isTmdbBtnLoading && 
 								<div className="tmdb-btn-spinner">
 									<Spinner
@@ -153,6 +183,9 @@ TMDBPicker.defaultProps = {
 
 TMDBPicker.propTypes = {
 	flixType: PropTypes.string.isRequired,
+	title: PropTypes.string.isRequired,
+	page: PropTypes.number.isRequired,
+	onParamsChange: PropTypes.func.isRequired,
 	disabled: PropTypes.bool,
 	onTMDBSelect: PropTypes.func.isRequired,
 }

@@ -114,6 +114,9 @@ export const FlixPlayerHost = ({
 							config={{
 								file: {
 									tracks,
+									attributes: {
+										crossOrigin: "anonymous"
+									}
 								},
 							}}
 						/>
