@@ -17,7 +17,7 @@ const MovieCardSkeleton = () => {
 					</div>
 				</div>
 
-				<Card.Text className="d-flex flex-column p-2">
+				<Card.Text as="div" className="d-flex flex-column p-2">
 					<div className="skeleton-box mb-2 rounded" style={{ height: '14px', width: '85%' }}></div>
 					<div className="skeleton-box rounded" style={{ height: '12px', width: '45%' }}></div>
 				</Card.Text>

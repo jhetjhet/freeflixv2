@@ -14,6 +14,8 @@ import MovieDetail from './components/Pages/FlixDetail/MovieDetail.js';
 import SeriesDetail from './components/Pages/FlixDetail/SeriesDetail.js';
 import WatchTogetherRoom from './components/Pages/WatchTogether/WatchTogetherRoom.js';
 import NotFound from './components/Pages/NotFound.js';
+import { TMDBProvider } from './contexts/TMDBContext.js';
+import { FlixProvider } from './contexts/FlixContext.js';
 
 const PrivateRoute = ({ children, ...rest }) => {
 	const { isAuthenticated, isLoading } = useAuth();
@@ -24,6 +26,14 @@ const PrivateRoute = ({ children, ...rest }) => {
 		</Route>
 	);
 };
+
+const DetailProviders = ({ children }) => (
+    <TMDBProvider>
+        <FlixProvider>
+            {children}
+        </FlixProvider>
+    </TMDBProvider>
+);
 
 function App() {
   return (
@@ -40,13 +50,15 @@ function App() {
 									<FlixFilter />
 								</Route>
 								<Route exact path="/flix/movie/:flix_id/:tmdb_id">
-									<MovieDetail />
+									<DetailProviders><MovieDetail /></DetailProviders>
 								</Route>
 								<Route exact path="/flix/series/:flix_id/:tmdb_id">
-									<SeriesDetail />
+									<DetailProviders><SeriesDetail /></DetailProviders>
 								</Route>
 								<PrivateRoute exact path="/flix/create">
-									<FlixCreate />
+									<DetailProviders>
+										<FlixCreate />
+									</DetailProviders>
 								</PrivateRoute>
 								<Route exact path="/watch-together/:roomId">
 									<WatchTogetherRoom />
