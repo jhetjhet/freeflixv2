@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import CreditsHolder from './CreditsHolder.js';
 import TMDBDetails from './TMDBDetails.js';
@@ -9,47 +8,38 @@ import {
 	Card,
 } from 'react-bootstrap';
 import { MoviePlayer } from './FlixPlayer.js';
+import { useTMDB } from '../../../contexts/TMDBContext';
+import { useFlix } from '../../../contexts/FlixContext';
 
 const SeriesDetail = () => {
-	const [tmdb, setTmdb] = useState({});
 	const { flix_id, tmdb_id } = useParams();
-	const [flix, setFlix] = useState({});
 	const [selectedSeason, setSelectedSeason] = useState(null);
 	const [selectedEpisode, setSelectedEpisode] = useState(null);
+	const { tmdb, load: loadTMDB } = useTMDB();
+	const { flix, load: loadFlix } = useFlix();
 
 	useEffect(() => {
-		const conf = {
-			params: {
-				api_key: process.env.REACT_APP_TMDB_API_KEY,
-				append_to_response: 'credits,images,reviews',
-			}
-		};
-		axios.get(`https://api.themoviedb.org/3/tv/${tmdb_id}`, conf).then(resp => {
-			setTmdb(resp.data);
-		}).catch(err => { console.error(err.message) });
-	}, [tmdb_id]);
-
-	useEffect(() => {
-		axios.get(`/api/series/${tmdb_id}/`).then(resp => {
-			setFlix(resp.data);
-		}).catch(err => {
-			console.error(err.message);
-		});
-	}, [tmdb_id]);
+		loadTMDB(tmdb_id, 'tv');
+		loadFlix(tmdb_id, 'series');
+	}, [tmdb_id, loadTMDB, loadFlix]);
 
 	return (
 		<div>
-			<TMDBDetails 
-				poster_path={tmdb.poster_path}
-				title={tmdb.name}
-				original_title={tmdb.original_name}
-				release_date={tmdb.first_air_date}
-				overview={tmdb.overview}
-				genres={tmdb.genres}
-				images_backdrops={tmdb?.images?.backdrops ?? []}
-				credits={tmdb.credits}
-				video_path={flix?.video_path_exists ? flix.video_path : null} 
-			/>
+
+			{tmdb && (
+				<TMDBDetails
+					poster_path={tmdb.poster_path}
+					title={tmdb.name}
+					original_title={tmdb.original_name}
+					release_date={tmdb.first_air_date}
+					overview={tmdb.overview}
+					genres={tmdb.genres}
+					images_backdrops={tmdb?.images?.backdrops ?? []}
+					credits={tmdb.credits}
+					video_path={flix?.video_path_exists ? flix.video_path : null}
+				/>
+			)}
+
 			<div>
 				{(selectedSeason && selectedEpisode) && (
 					<div className="P-4 pt-4">

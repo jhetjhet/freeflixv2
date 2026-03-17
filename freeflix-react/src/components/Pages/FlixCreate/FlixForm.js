@@ -17,10 +17,8 @@ class FlixForm extends React.Component {
 		this.state = {
 			video: null,
 			subt: null,
-			flix: null,
 			cancelToken: null,
 			isRegisterLoading: false,
-			isGetFlixLoading: false,
 			toastMessage: '',
 			showToast: false,
 		}
@@ -40,13 +38,8 @@ class FlixForm extends React.Component {
 		this.submitFlix = this.submitFlix.bind(this);
 		this.patchFlix = this.patchFlix.bind(this);
 		this.delFlix = this.delFlix.bind(this);
-		this.fetchFlix = this.fetchFlix.bind(this);
 		this.closeToast = this.closeToast.bind(this);
 		this.handleRequestError = this.handleRequestError.bind(this);
-	}
-
-	async componentDidMount() {
-		this.fetchFlix();
 	}
 
 	getErrorMessage(err) {
@@ -80,22 +73,6 @@ class FlixForm extends React.Component {
 				toastMessage: this.getErrorMessage(err),
 			});
 		}
-	}
-
-	fetchFlix() {
-		this.setState({ isGetFlixLoading: true });
-
-		axios.get(this.flixUrl).then(resp => {
-			this.setState({
-				flix: resp.data,
-				video: null,
-				subt: null,
-			});
-		}).catch(err => {
-			this.handleRequestError(err);
-		}).finally(() => {
-			this.setState({ isGetFlixLoading: false });
-		});
 	}
 
 	onCancel(event) {
@@ -153,14 +130,13 @@ class FlixForm extends React.Component {
 
 		axios.post(url, data, conf).then(resp => {
 			this.setState({
-				flix: resp.data,
 				subt: null,
 				cancelToken: null,
 				showToast: false,
 				toastMessage: '',
 			});
 
-			this.props.onSubmit(resp.data);
+			this.props.onFlixChange();
 		}).catch(err => {
 			this.handleRequestError(err);
 		}).finally(() => {
@@ -185,12 +161,12 @@ class FlixForm extends React.Component {
 
 		axios.patch(this.flixUrl, data, conf).then(resp => {
 			this.setState({
-				flix: resp.data,
 				subt: null,
 				cancelToken: null,
 				showToast: false,
 				toastMessage: '',
 			});
+			this.props.onFlixChange();
 		}).catch(err => {
 			this.handleRequestError(err);
 		});
@@ -201,21 +177,21 @@ class FlixForm extends React.Component {
 			this.setState({
 				video: null,
 				subt: null,
-				flix: null,
 				cancelToken: null,
 				showToast: false,
 				toastMessage: '',
 			});
 
 			this.fileUploadRef.current.cancelUpload();
-			this.props.onDelete(this.props?.tmdb?.id);
+			this.props.onFlixChange();
 		}).catch(err => {
 			this.handleRequestError(err);
 		});
 	}
 
 	render() {
-		const { video, subt, flix, isGetFlixLoading, showToast, toastMessage } = this.state;
+		const { video, subt, showToast, toastMessage } = this.state;
+		const { flix } = this.props;
 		const { tmdb } = this.props;
 
 		const seasonNumber = tmdb?.season_number ?? null;
@@ -242,20 +218,19 @@ class FlixForm extends React.Component {
 					<span className="flix-form-title md-text">{this.props.tmdb.title || this.props.tmdb.name}{episodeNumber ? `- Episode ${episodeNumber}` : ''}</span>
 				</div>
 
-				{!isGetFlixLoading && (
-					<FileUploader
-						ref={this.fileUploadRef}
+			<FileUploader
+				ref={this.fileUploadRef}
 						_file={flix ? video : null}
 						chunkSize={1048576 * 5}
 						cookieNameId={flix?.tmdb_id ? flix.tmdb_id : ''}
 						tmdbId={this?.props?.seriesID ?? flix?.tmdb_id}
 						seasonNumber={seasonNumber}
 						episodeNumber={episodeNumber}
-						onFinish={() => {
-							this.setState({ video: null, subt: null, cancelToken: null, percentProgress: 0 });
-							this.videoSelect.current.value = null;
-							this.fetchFlix();
-						}}
+				onFinish={() => {
+					this.setState({ video: null, subt: null, cancelToken: null, percentProgress: 0 });
+					this.videoSelect.current.value = null;
+					this.props.onFlixChange();
+				}}
 					>
 						{({
 							percentProgress,
@@ -337,7 +312,6 @@ class FlixForm extends React.Component {
 							</React.Fragment>
 						)}
 					</FileUploader>
-				)}
 
 				{flix && (
 					<div className="my-3">
@@ -354,8 +328,10 @@ class FlixForm extends React.Component {
 
 FlixForm.propTypes = {
 	tmdb: PropTypes.object.isRequired,
+	flix: PropTypes.object,
 	flixType: PropTypes.string.isRequired,
 	seriesID: PropTypes.number,
+	onFlixChange: PropTypes.func.isRequired,
 }
 
 export default FlixForm;

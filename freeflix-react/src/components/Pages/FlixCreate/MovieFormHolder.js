@@ -1,46 +1,29 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import FlixForm from './FlixForm.js';
-import axios from 'axios';
+import { useTMDB } from '../../../contexts/TMDBContext';
+import { useFlix } from '../../../contexts/FlixContext';
 
-class MovieFormHolder extends React.Component{
+const MovieFormHolder = () => {
+	const { tmdb } = useTMDB();
+	const { flix, load: loadFlix } = useFlix();
 
-	constructor(props){
-		super(props);
+	if (!tmdb) return null;
 
-		this.state = {
-			tmdbMovieType: null,
-		}
-	}
-
-	componentDidMount(){
-		const {tmdb} = this.props;
-		const conf = {params: {api_key: process.env.REACT_APP_TMDB_API_KEY}};
-		axios.get(`https://api.themoviedb.org/3/movie/${tmdb.id}`, conf).then(resp => {
-			this.setState({tmdbMovieType: resp.data});
-		}).catch(err => {console.error(err.message)});
-	}
-
-	render(){
-		const {tmdbMovieType} = this.state;
-		const {tmdb} = this.props;
-
-		return (
-			<div className="movie-form-holder p-2 my-2 rounded">
-				<div className="d-flex">
-					<h6 className="text-flix">{tmdb.title}</h6>
-				</div>
-				<div>
-					{tmdbMovieType &&
-					<FlixForm tmdb={tmdbMovieType} flixType={"movie"} />}
-				</div>
+	return (
+		<div className="movie-form-holder p-2 my-2 rounded">
+			<div className="d-flex">
+				<h6 className="text-flix">{tmdb.title}</h6>
 			</div>
-		);
-	}
-}
-
-MovieFormHolder.propTypes = {
-	tmdb: PropTypes.object.isRequired,
-}
+			<div>
+				<FlixForm
+					tmdb={tmdb}
+					flix={flix}
+					flixType="movie"
+					onFlixChange={() => loadFlix(tmdb.id, 'movie')}
+				/>
+			</div>
+		</div>
+	);
+};
 
 export default MovieFormHolder;

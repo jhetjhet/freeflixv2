@@ -1,8 +1,10 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import TMDBPicker from './TMDB/TMDBPicker.js';
 import SeriesFormHolder from './SeriesFormHolder.js';
 import MovieFormHolder from './MovieFormHolder.js';
+import { useTMDB } from '../../../contexts/TMDBContext';
+import { useFlix } from '../../../contexts/FlixContext';
 
 const parsePage = (raw) => {
 	const n = Number.parseInt(raw, 10);
@@ -12,7 +14,8 @@ const parsePage = (raw) => {
 const FlixCreate = () => {
 	const history = useHistory();
 	const location = useLocation();
-	const [tmdb, setTMDB] = useState({});
+	const { tmdb, load: loadTMDB, clear: clearTMDB } = useTMDB();
+	const { load: loadFlix, clear: clearFlix } = useFlix();
 
 	const queryParams = new URLSearchParams(location.search);
 	const flixType = ['movie', 'tv'].includes(queryParams.get('type'))
@@ -38,22 +41,24 @@ const FlixCreate = () => {
 		}
 	};
 
-	var tmdbForm;
-	if(Object.keys(tmdb).length > 0){
-		if(tmdb.flix_type === 'movie')
-			tmdbForm = (
-				<MovieFormHolder 
-					key={tmdb.id}
-					tmdb={tmdb}
-				/>
-			)
-		else
-			tmdbForm = (
-				<SeriesFormHolder 
-					key={tmdb.id}
-					tmdb={tmdb}	
-				/>
-			)
+	const handleTMDBSelect = (selected) => {
+		loadTMDB(selected.id, selected.flix_type);
+		loadFlix(selected.id, selected.flix_type === 'movie' ? 'movie' : 'series');
+	};
+
+	const handleTypeChange = (updates) => {
+		clearTMDB();
+		clearFlix();
+		updateQueryParams(updates);
+	};
+
+	let tmdbForm = null;
+	if (tmdb) {
+		if (flixType === 'movie') {
+			tmdbForm = <MovieFormHolder key={tmdb.id} />;
+		} else {
+			tmdbForm = <SeriesFormHolder key={tmdb.id} />;
+		}
 	}
 
 	return(
@@ -72,7 +77,7 @@ const FlixCreate = () => {
 									type="radio" 
 									value="movie" 
 									checked={"movie" === flixType}
-									onChange={() => updateQueryParams({ type: null, title: null, page: null })}  
+									onChange={() => handleTypeChange({ type: null, title: null, page: null })}  
 								/>
 								{' '}movie							
 							</label>
@@ -82,7 +87,7 @@ const FlixCreate = () => {
 									type="radio" 
 									value="tv" 
 									checked={"tv" === flixType}
-									onChange={() => updateQueryParams({ type: 'tv', title: null, page: null })}  
+									onChange={() => handleTypeChange({ type: 'tv', title: null, page: null })}  
 								/>
 								{' '}series							
 							</label>
@@ -93,7 +98,7 @@ const FlixCreate = () => {
 							title={title}
 							page={page}
 							onParamsChange={updateQueryParams}
-							onTMDBSelect={setTMDB}
+							onTMDBSelect={handleTMDBSelect}
 						/>
 					</div>
 				</div>
