@@ -5,7 +5,7 @@ import {
 	Route, 
 	Switch
 } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import FlixNavbar from './components/FlixNavbar.js';
 import FlixFooter from './components/FlixFooter.js';
 import FlixCreate from './components/Pages/FlixCreate/FlixCreate.js';
@@ -14,6 +14,16 @@ import MovieDetail from './components/Pages/FlixDetail/MovieDetail.js';
 import SeriesDetail from './components/Pages/FlixDetail/SeriesDetail.js';
 import WatchTogetherRoom from './components/Pages/WatchTogether/WatchTogetherRoom.js';
 import NotFound from './components/Pages/NotFound.js';
+
+const PrivateRoute = ({ children, ...rest }) => {
+	const { isAuthenticated, isLoading } = useAuth();
+	if (isLoading) return null;
+	return (
+		<Route {...rest}>
+			{isAuthenticated ? children : <NotFound />}
+		</Route>
+	);
+};
 
 function App() {
   return (
@@ -35,9 +45,9 @@ function App() {
 								<Route exact path="/flix/series/:flix_id/:tmdb_id">
 									<SeriesDetail />
 								</Route>
-								<Route exact path="/flix/create">
+								<PrivateRoute exact path="/flix/create">
 									<FlixCreate />
-								</Route>
+								</PrivateRoute>
 								<Route exact path="/watch-together/:roomId">
 									<WatchTogetherRoom />
 								</Route>

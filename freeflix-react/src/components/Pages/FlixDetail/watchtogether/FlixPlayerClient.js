@@ -288,6 +288,9 @@ export const FlixPlayerClient = ({
 								config={{
 									file: {
 										tracks,
+										attributes: {
+											crossOrigin: "anonymous"
+										}
 									},
 								}}
 								onError={(e) => {
