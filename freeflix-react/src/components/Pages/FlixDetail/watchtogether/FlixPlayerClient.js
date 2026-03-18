@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ReactPlayer from 'react-player';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ClientCustomControl } from './ClientCustomControl';
 import { useWatchTogetherClientPlayback } from '../../../../helpers/watchtogether/useWatchTogetherClientPlayback';
 import { useWatchTogetherClientSocket } from '../../../../helpers/watchtogether/useWatchTogetherClientSocket';
+import VideoPlayer from '../VideoPlayer';
 
 const DEBUG_SYNC = true;
 const CONTROL_HIDE_DELAY_MS = 1800;
@@ -45,14 +45,6 @@ export const FlixPlayerClient = ({
 	} = useWatchTogetherClientPlayback({
 		debug: DEBUG_SYNC,
 	});
-
-	const tracks = useMemo(() => subtitles.map(sub => ({
-		kind: 'subtitles',
-		src: sub.subtitle,
-		label: sub.name,
-		srcLang: sub.srclng,
-		default: sub.is_default,
-	})), [subtitles]);
 
 	const { emitPause, emitPlay } = useWatchTogetherClientSocket({
 		roomId,
@@ -268,9 +260,15 @@ export const FlixPlayerClient = ({
 				{video_url ? (
 					<>
 						<div style={{ width: '100%', visibility: shouldShowPlayer ? 'visible' : 'hidden' }}>
-							<ReactPlayer
-								ref={playerRef}
-								playing={shouldAttemptPlayback}
+							<VideoPlayer
+								video_url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
+								subtitles={subtitles}
+								playerRef={playerRef}
+								isPlaying={shouldAttemptPlayback}
+								playbackRate={playbackRate}
+								controls={false}
+								volume={volume}
+								muted={isMuted}
 								onPlay={handlePlay}
 								onPause={handlePause}
 								onSeek={handleSeek}
@@ -278,25 +276,7 @@ export const FlixPlayerClient = ({
 								onBuffer={handleBuffer}
 								onBufferEnd={handleBufferEnd}
 								onProgress={handleProgress}
-								playbackRate={playbackRate}
-								volume={volume}
-								muted={isMuted}
-								width="100%"
-								height="100%"
-								url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
-								controls={false}
-								config={{
-									file: {
-										tracks,
-										attributes: {
-											crossOrigin: "anonymous"
-										}
-									},
-								}}
-								onError={(e) => {
-									console.error('>>> Player error:', e);
-									// onError(e);
-								}}
+								onError={(e) => console.error('>>> Player error:', e)}
 							/>
 						</div>
 						{!shouldShowPlayer && (

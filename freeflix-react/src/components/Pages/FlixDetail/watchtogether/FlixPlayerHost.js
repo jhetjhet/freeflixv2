@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
-import ReactPlayer from 'react-player';
+import React, { useCallback } from 'react';
 import { useWatchTogetherHostPlayback } from '../../../../helpers/watchtogether/useWatchTogetherHostPlayback';
 import { useWatchTogetherHostSocket } from '../../../../helpers/watchtogether/useWatchTogetherHostSocket';
+import VideoPlayer from '../VideoPlayer';
 
 const DEBUG_SYNC = true;
 
@@ -34,14 +34,6 @@ export const FlixPlayerHost = ({
 	} = useWatchTogetherHostPlayback({
 		debug: DEBUG_SYNC,
 	});
-
-	const tracks = useMemo(() => subtitles.map(sub => ({
-		kind: 'subtitles',
-		src: sub.subtitle,
-		label: sub.name,
-		srcLang: sub.srclng,
-		default: sub.is_default,
-	})), [subtitles]);
 
 	const { emitPause, emitPlay } = useWatchTogetherHostSocket({
 		roomId,
@@ -96,9 +88,12 @@ export const FlixPlayerHost = ({
 			>
 				{video_url ? (
 					<div style={{ width: '100%', visibility: shouldShowPlayer ? 'visible' : 'hidden' }}>
-						<ReactPlayer
-							ref={playerRef}
-							playing={isPlaying}
+						<VideoPlayer
+							video_url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
+							subtitles={subtitles}
+							playerRef={playerRef}
+							isPlaying={isPlaying}
+							playbackRate={playbackRate}
 							onPlay={handlePlay}
 							onPause={handlePause}
 							onSeek={handleSeek}
@@ -106,19 +101,6 @@ export const FlixPlayerHost = ({
 							onBuffer={handleBuffer}
 							onBufferEnd={handleBufferEnd}
 							onProgress={handleProgress}
-							playbackRate={playbackRate}
-							width="100%"
-							height="100%"
-							url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
-							controls
-							config={{
-								file: {
-									tracks,
-									attributes: {
-										crossOrigin: "anonymous"
-									}
-								},
-							}}
 						/>
 					</div>
 				) : (
