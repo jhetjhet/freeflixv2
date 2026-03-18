@@ -8,6 +8,7 @@ import { useTMDB } from '../../../contexts/TMDBContext';
 import { useFlix } from '../../../contexts/FlixContext';
 import SimpleToast from '../../toast/SimpleToast';
 import axios from 'axios';
+import FlixForm from '../FlixCreate/FlixForm.js';
 
 const MovieDetail = () => {
 	const { tmdb_id } = useParams();
@@ -15,7 +16,9 @@ const MovieDetail = () => {
 	const [inviteLink, setInviteLink] = useState('');
 	const [inviteLoading, setInviteLoading] = useState(false);
 	const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
-	const { isAuthenticated } = useAuth();
+	const [showForm, setShowForm] = useState(false);
+	const { isAuthenticated, user } = useAuth();
+	const canCreateFlix = Boolean(user?.can_create_flix);
 	const { tmdb, load: loadTMDB } = useTMDB();
 	const { flix, load: loadFlix } = useFlix();
 
@@ -63,6 +66,31 @@ const MovieDetail = () => {
 				message={toast.message}
 				onClose={() => setToast({ show: false, type: 'info', message: '' })}
 			/>
+
+			{isAuthenticated && canCreateFlix && flix && (
+				<div className="d-flex justify-content-end px-3 pt-3">
+					<Button
+						variant={showForm ? 'outline-secondary' : 'outline-light'}
+						size="sm"
+						onClick={() => setShowForm(prev => !prev)}
+					>
+						{showForm ? 'close' : 'edit'}
+					</Button>
+				</div>
+			)}
+
+			{showForm && flix && (
+				<div className="my-4 d-flex justify-content-center">
+					<div className="col-12 col-lg-6">
+						<FlixForm
+							tmdb={tmdb}
+							flix={flix}
+							flixType="movie"
+							onFlixChange={() => loadFlix(tmdb_id, 'movie')}
+						/>
+					</div>
+				</div>
+			)}
 
 			{tmdb && (
 				<TMDBDetails
