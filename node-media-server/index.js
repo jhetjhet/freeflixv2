@@ -46,8 +46,13 @@ app.use('/watch-together', createWatchTogetherRouter());
 registerWatchTogetherHandlers(io);
 
 const startServer = async () => {
-    await Upload.sync({ alter: true });
-    await UploadPart.sync({ alter: true });
+    // Both tables are ephemeral: upload_parts holds in-flight S3 part ETags,
+    // uploads tracks resumption state. After a restart parts are gone so
+    // resumption is impossible anyway. force:true guarantees the schema is
+    // always correct regardless of any corruption left by a previous alter:true.
+    // Drop child table first to avoid FK constraint error, then parent.
+    await UploadPart.sync({ force: true });
+    await Upload.sync({ force: true });
 
     server.listen(PORT, () => {
         console.log('Server running...', PORT);

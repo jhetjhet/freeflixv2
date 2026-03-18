@@ -16,14 +16,17 @@ export const FlixProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     // type: 'movie' | 'series'
-    const load = useCallback(async (id, type) => {
+    // onResult?: ({ success: boolean, data?, error? }) => void
+    const load = useCallback(async (id, type, onResult) => {
         setIsLoading(true);
         try {
             const response = await axios.get(`/api/${type}/${id}/`);
             setFlix(response.data);
+            if (onResult) onResult({ success: true, data: response.data });
         } catch (error) {
             console.error('Failed to fetch flix data:', error);
             setFlix(null);
+            if (onResult) onResult({ success: false, error });
         } finally {
             setIsLoading(false);
         }

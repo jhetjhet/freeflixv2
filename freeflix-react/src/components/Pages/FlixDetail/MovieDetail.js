@@ -8,6 +8,9 @@ import { useTMDB } from '../../../contexts/TMDBContext';
 import { useFlix } from '../../../contexts/FlixContext';
 import SimpleToast from '../../toast/SimpleToast';
 import axios from 'axios';
+import FlixForm from '../FlixCreate/FlixForm.js';
+import NotFound from '../NotFound.js';
+import TMDBDetailsSkeleton from './TMDBDetailsSkeleton.js';
 
 const MovieDetail = () => {
 	const { tmdb_id } = useParams();
@@ -15,13 +18,20 @@ const MovieDetail = () => {
 	const [inviteLink, setInviteLink] = useState('');
 	const [inviteLoading, setInviteLoading] = useState(false);
 	const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
-	const { isAuthenticated } = useAuth();
-	const { tmdb, load: loadTMDB } = useTMDB();
-	const { flix, load: loadFlix } = useFlix();
+	const [showForm, setShowForm] = useState(false);
+	const [notFound, setNotFound] = useState(false);
+	const { isAuthenticated, user } = useAuth();
+	const canCreateFlix = Boolean(user?.can_create_flix);
+	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
+	const { flix, load: loadFlix, isLoading: isFlixLoading } = useFlix();
 
 	useEffect(() => {
-		loadTMDB(tmdb_id, 'movie');
-		loadFlix(tmdb_id, 'movie');
+		setNotFound(false);
+
+		loadFlix(tmdb_id, 'movie', ({ success }) => {
+			if (!success) setNotFound(true);
+			else loadTMDB(tmdb_id, 'movie');
+		});
 	}, [tmdb_id, loadTMDB, loadFlix]);
 
 	const createInviteLink = async () => {
@@ -54,6 +64,7 @@ const MovieDetail = () => {
 		}
 	};
 
+	if (notFound) return <NotFound />;
 
 	return (
 		<div>
@@ -64,7 +75,35 @@ const MovieDetail = () => {
 				onClose={() => setToast({ show: false, type: 'info', message: '' })}
 			/>
 
-			{tmdb && (
+			{isAuthenticated && canCreateFlix && flix && (
+				<div className="d-flex justify-content-end px-3 pt-3">
+					<Button
+						variant={showForm ? 'outline-secondary' : 'outline-light'}
+						size="sm"
+						onClick={() => setShowForm(prev => !prev)}
+					>
+						{showForm ? 'close' : 'edit'}
+					</Button>
+				</div>
+			)}
+
+			{showForm && flix && (
+				<div className="my-4 d-flex justify-content-center">
+					<div className="col-12 col-lg-6">
+						<FlixForm
+							tmdb={tmdb}
+							flix={flix}
+							flixType="movie"
+							onFlixChange={() => loadFlix(tmdb_id, 'movie')}
+							onDelete={() => history.push('/')}
+						/>
+					</div>
+				</div>
+			)}
+
+			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
+
+			{(!isTMDBLoading && tmdb) && (
 				<TMDBDetails
 					poster_path={tmdb.poster_path}
 					title={tmdb.title}
