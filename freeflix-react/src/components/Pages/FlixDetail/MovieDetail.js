@@ -67,7 +67,7 @@ const MovieDetail = () => {
 	if (notFound) return <NotFound />;
 
 	return (
-		<div>
+		<div className="pb-5">
 			<SimpleToast
 				show={toast.show}
 				type={toast.type}
