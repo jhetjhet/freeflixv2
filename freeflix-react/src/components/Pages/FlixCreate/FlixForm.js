@@ -239,9 +239,15 @@ class FlixForm extends React.Component {
 							<React.Fragment>
 								<div className="d-flex mt-1 w-100">
 									<div className="d-flex flex-column w-100 pr-2">
-										<div className="d-flex">
-											<span className="md-text">Video: </span>
-											<input className="md-text w-100" type="text" disabled value={(typeof vidName === 'string' && vidName.trim() !== '') ? vidName : 'No video uploaded yet.'} />
+											<div className="d-flex align-items-center">
+											<span className="md-text mr-1">Video: </span>
+											{(typeof vidName === 'string' && vidName.trim() !== '') ? (
+												<a className="md-text text-primary" href={vidName} target="_blank" rel="noopener noreferrer">
+													{flix?.title || tmdb?.title || tmdb?.name}
+												</a>
+											) : (
+												<span className="md-text text-muted">No video uploaded yet.</span>
+											)}
 										</div>
 									</div>
 									<div className="ml-auto mt-auto d-flex">

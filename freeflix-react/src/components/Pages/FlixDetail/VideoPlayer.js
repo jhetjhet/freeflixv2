@@ -84,13 +84,15 @@ const VideoPlayer = ({
 
     const isPlaying = isControlled ? externalIsPlaying : internalIsPlaying;
 
-    const tracks = useMemo(() => subtitles.map(sub => ({
-        kind: 'subtitles',
-        src: sub.subtitle,
-        label: sub.name,
-        srcLang: sub.srclng,
-        default: sub.is_default,
-    })), [subtitles]);
+    const tracks = useMemo(() => subtitles
+        .filter(sub => sub.subtitle_exists)
+        .map(sub => ({
+            kind: 'subtitles',
+            src: sub.subtitle,
+            label: sub.name,
+            srcLang: sub.srclng,
+            default: sub.is_default,
+        })), [subtitles]);
 
     // Load saved progress – only in uncontrolled (MoviePlayer) mode
     useEffect(() => {
