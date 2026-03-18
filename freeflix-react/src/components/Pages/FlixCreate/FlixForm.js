@@ -183,7 +183,7 @@ class FlixForm extends React.Component {
 			});
 
 			this.fileUploadRef.current.cancelUpload();
-			this.props.onFlixChange();
+			this.props.onDelete();
 		}).catch(err => {
 			this.handleRequestError(err);
 		});
@@ -332,6 +332,7 @@ FlixForm.propTypes = {
 	flixType: PropTypes.string.isRequired,
 	seriesID: PropTypes.number,
 	onFlixChange: PropTypes.func.isRequired,
+	onDelete: PropTypes.func,
 }
 
 export default FlixForm;

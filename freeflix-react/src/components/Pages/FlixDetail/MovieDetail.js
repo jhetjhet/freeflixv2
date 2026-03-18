@@ -9,6 +9,7 @@ import { useFlix } from '../../../contexts/FlixContext';
 import SimpleToast from '../../toast/SimpleToast';
 import axios from 'axios';
 import FlixForm from '../FlixCreate/FlixForm.js';
+import NotFound from '../NotFound.js';
 
 const MovieDetail = () => {
 	const { tmdb_id } = useParams();
@@ -17,14 +18,19 @@ const MovieDetail = () => {
 	const [inviteLoading, setInviteLoading] = useState(false);
 	const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
 	const [showForm, setShowForm] = useState(false);
+	const [notFound, setNotFound] = useState(false);
 	const { isAuthenticated, user } = useAuth();
 	const canCreateFlix = Boolean(user?.can_create_flix);
 	const { tmdb, load: loadTMDB } = useTMDB();
 	const { flix, load: loadFlix } = useFlix();
 
 	useEffect(() => {
-		loadTMDB(tmdb_id, 'movie');
-		loadFlix(tmdb_id, 'movie');
+		setNotFound(false);
+
+		loadFlix(tmdb_id, 'movie', ({ success }) => {
+			if (!success) setNotFound(true);
+			else loadTMDB(tmdb_id, 'movie');
+		});
 	}, [tmdb_id, loadTMDB, loadFlix]);
 
 	const createInviteLink = async () => {
@@ -57,6 +63,7 @@ const MovieDetail = () => {
 		}
 	};
 
+	if (notFound) return <NotFound />;
 
 	return (
 		<div>
@@ -87,6 +94,7 @@ const MovieDetail = () => {
 							flix={flix}
 							flixType="movie"
 							onFlixChange={() => loadFlix(tmdb_id, 'movie')}
+							onDelete={() => history.push('/')}
 						/>
 					</div>
 				</div>
