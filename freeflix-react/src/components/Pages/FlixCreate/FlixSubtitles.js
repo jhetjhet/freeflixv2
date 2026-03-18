@@ -49,10 +49,6 @@ const FlixSubtitles = ({
         return subtitles.map(() => React.createRef());
     }, [subtitles]);
 
-    const srtFileInputRefs = useMemo(() => {
-        return subtitles.map(() => React.createRef());
-    }, [subtitles]);
-
     const mediaBaseUrl = media_base_url + "subtitles";
 
     const updateFieldSub = (field, value, idx) => {
@@ -203,24 +199,20 @@ const FlixSubtitles = ({
                         </div>
                         <input
                             type="file"
-                            accept=".vtt"
+                            accept=".vtt,.srt"
                             hidden
                             style={{ display: 'none' }}
                             ref={fileInputRefs[idx]}
                             disabled={sub?.__is_converting}
                             onChange={e => {
-                                updateFieldSub("__subtitle", e.target.files[0], idx);
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (file.name.toLowerCase().endsWith('.srt')) {
+                                    onSrtFileSelect(e, idx);
+                                } else {
+                                    updateFieldSub("__subtitle", file, idx);
+                                }
                             }}
-                        />
-
-                        <input
-                            type="file"
-                            accept=".srt"
-                            hidden
-                            style={{ display: 'none' }}
-                            ref={srtFileInputRefs[idx]}
-                            disabled={sub?.__is_converting}
-                            onChange={e => onSrtFileSelect(e, idx)}
                         />
 
                         <select
@@ -241,7 +233,11 @@ const FlixSubtitles = ({
 
                     {sub.subtitle && (
                         <small className="text-muted d-block mt-1 pl-4" style={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>
-                            {sub.subtitle}
+                            {sub.subtitle_exists ? (
+                                <a className="md-text text-primary" href={sub.subtitle} target="_blank" rel="noopener noreferrer">
+                                    Download
+                                </a>
+                            ) : "Subtitle file not found."}
                         </small>
                     )}
 
@@ -252,18 +248,9 @@ const FlixSubtitles = ({
                             className="mr-2"
                             disabled={sub?.__is_converting}
                             onClick={() => fileInputRefs[idx]?.current?.click()}
+                            style={{ maxWidth: '164px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
                         >
-                            {sub?.__is_converting ? "Converting..." : "Upload VTT"}
-                        </Button>
-
-                        <Button
-                            size="sm"
-                            variant="info"
-                            className="mr-2"
-                            disabled={sub?.__is_converting}
-                            onClick={() => srtFileInputRefs[idx]?.current?.click()}
-                        >
-                            {sub?.__is_converting ? "Converting..." : "Upload SRT"}
+                            {sub?.__is_converting ? "Converting..." : sub?.__subtitle?.name ? sub.__subtitle.name : "Upload SRT/VTT"}
                         </Button>
 
                         <Button

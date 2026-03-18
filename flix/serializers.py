@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.files.storage import default_storage
 from rest_framework import serializers
 
 from .models import (
@@ -40,6 +41,8 @@ class GenreSerializer(serializers.ModelSerializer):
 		return obj.series_set.all().count()
 
 class SubtitleSerializer(serializers.ModelSerializer):
+	subtitle_exists = serializers.SerializerMethodField()
+
 	class Meta:
 		model = SubtitleBase
 		fields = [
@@ -48,8 +51,12 @@ class SubtitleSerializer(serializers.ModelSerializer):
 			'is_default',
 			'subtitle',
 			'srclng',
+			'subtitle_exists',
 		]
 		extra_kwargs = {'subtitle': {'required': True }}
+
+	def get_subtitle_exists(self, obj):
+		return bool(obj.subtitle and default_storage.exists(obj.subtitle.name))
 
 class MovieSubtitleSerializer(SubtitleSerializer):
 	movie = serializers.SlugRelatedField(read_only=True, slug_field='tmdb_id')
