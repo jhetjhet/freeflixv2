@@ -84,7 +84,7 @@ const WatchTogetherRoom = () => {
 	}
 
 	return (
-		<div>
+		<div className="pb-5">
 			<SimpleToast
 				show={toast.show}
 				type={toast.type}
@@ -116,8 +116,8 @@ const WatchTogetherRoom = () => {
 				)}
 			</div>
 			{flix?.video_path_exists ? (
-				<div className="P-4">
-					<div className="col-12">
+				<div className="d-flex flex-column align-items-center justify-content-center">
+					<div className="col-12 col-md-10 col-lg-8">
 						<WatchTogetherPlayer
 							roomId={room.roomId}
 							id={flix?.video_path}

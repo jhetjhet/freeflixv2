@@ -7,13 +7,12 @@ export const MoviePlayer = ({ id = null, video_url = "", subtitles = [] }) => {
 	return (
 		<div className="d-flex flex-column align-items-center justify-content-center">
 			<div
-				className="mt-4"
+				className="mt-4 col-12 col-md-10 col-lg-8"
 				style={{
 					boxShadow: '0 4px 24px rgba(0,0,0,0.9), 0 1.5px 8px rgba(255,255,255,0.08) inset',
 					borderRadius: '12px',
 					overflow: 'hidden',
 					background: '#111',
-					width: 'calc(100% - 2rem)',
 				}}
 			>
 				{video_url ? (
