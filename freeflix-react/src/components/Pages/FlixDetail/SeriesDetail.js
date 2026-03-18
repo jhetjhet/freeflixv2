@@ -11,14 +11,15 @@ import { MoviePlayer } from './FlixPlayer.js';
 import { useTMDB } from '../../../contexts/TMDBContext';
 import { useFlix } from '../../../contexts/FlixContext';
 import NotFound from '../NotFound.js';
+import TMDBDetailsSkeleton from './TMDBDetailsSkeleton.js';
 
 const SeriesDetail = () => {
 	const { flix_id, tmdb_id } = useParams();
 	const [selectedSeason, setSelectedSeason] = useState(null);
 	const [selectedEpisode, setSelectedEpisode] = useState(null);
 	const [notFound, setNotFound] = useState(false);
-	const { tmdb, load: loadTMDB } = useTMDB();
-	const { flix, load: loadFlix } = useFlix();
+	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
+	const { flix, load: loadFlix, isLoading: isFlixLoading } = useFlix();
 
 	useEffect(() => {
 		setNotFound(false);
@@ -34,7 +35,9 @@ const SeriesDetail = () => {
 	return (
 		<div>
 
-			{tmdb && (
+			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
+
+			{(!isTMDBLoading && tmdb) && (
 				<TMDBDetails
 					poster_path={tmdb.poster_path}
 					title={tmdb.name}

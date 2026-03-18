@@ -10,6 +10,7 @@ import SimpleToast from '../../toast/SimpleToast';
 import axios from 'axios';
 import FlixForm from '../FlixCreate/FlixForm.js';
 import NotFound from '../NotFound.js';
+import TMDBDetailsSkeleton from './TMDBDetailsSkeleton.js';
 
 const MovieDetail = () => {
 	const { tmdb_id } = useParams();
@@ -21,8 +22,8 @@ const MovieDetail = () => {
 	const [notFound, setNotFound] = useState(false);
 	const { isAuthenticated, user } = useAuth();
 	const canCreateFlix = Boolean(user?.can_create_flix);
-	const { tmdb, load: loadTMDB } = useTMDB();
-	const { flix, load: loadFlix } = useFlix();
+	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
+	const { flix, load: loadFlix, isLoading: isFlixLoading } = useFlix();
 
 	useEffect(() => {
 		setNotFound(false);
@@ -100,7 +101,9 @@ const MovieDetail = () => {
 				</div>
 			)}
 
-			{tmdb && (
+			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
+
+			{(!isTMDBLoading && tmdb) && (
 				<TMDBDetails
 					poster_path={tmdb.poster_path}
 					title={tmdb.title}
