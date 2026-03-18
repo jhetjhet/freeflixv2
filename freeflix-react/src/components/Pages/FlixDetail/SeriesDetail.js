@@ -10,18 +10,26 @@ import {
 import { MoviePlayer } from './FlixPlayer.js';
 import { useTMDB } from '../../../contexts/TMDBContext';
 import { useFlix } from '../../../contexts/FlixContext';
+import NotFound from '../NotFound.js';
 
 const SeriesDetail = () => {
 	const { flix_id, tmdb_id } = useParams();
 	const [selectedSeason, setSelectedSeason] = useState(null);
 	const [selectedEpisode, setSelectedEpisode] = useState(null);
+	const [notFound, setNotFound] = useState(false);
 	const { tmdb, load: loadTMDB } = useTMDB();
 	const { flix, load: loadFlix } = useFlix();
 
 	useEffect(() => {
-		loadTMDB(tmdb_id, 'tv');
-		loadFlix(tmdb_id, 'series');
+		setNotFound(false);
+
+		loadFlix(tmdb_id, 'series', ({ success }) => {
+			if (!success) setNotFound(true);
+			else loadTMDB(tmdb_id, 'tv');
+		});
 	}, [tmdb_id, loadTMDB, loadFlix]);
+
+	if (notFound) return <NotFound />;
 
 	return (
 		<div>
