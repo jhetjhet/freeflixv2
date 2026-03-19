@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { WatchTogetherPlayer } from '../FlixDetail/FlixPlayer';
 import TMDBDetails from '../FlixDetail/TMDBDetails';
+import DetailsToggleButton from '../FlixDetail/DetailsToggleButton';
 import NotFound from '../NotFound';
 import SimpleToast from '../../toast/SimpleToast';
 
@@ -128,6 +129,7 @@ const WatchTogetherRoom = () => {
 	const [notFound, setNotFound] = useState(false);
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [userCount, setUserCount] = useState(null);
+	const [detailsExpanded, setDetailsExpanded] = useState(true);
 	const [toast, setToast] = useState({ show: false, type: 'error', message: '' });
 
 	const handleCopyRoomUrl = async () => {
@@ -205,17 +207,20 @@ const WatchTogetherRoom = () => {
 				message={toast.message}
 				onClose={() => setToast({ show: false, type: 'error', message: '' })}
 			/>
-			<TMDBDetails
-				poster_path={tmdb.poster_path}
-				title={tmdb.title}
-				original_title={tmdb.original_title}
-				release_date={tmdb.release_date}
-				overview={tmdb.overview}
-				genres={tmdb.genres}
-				images_backdrops={tmdb?.images?.backdrops ?? []}
-				credits={tmdb.credits}
-				video_path={flix?.video_path_exists ? flix.video_path : null}
-			/>
+			<div style={{ overflow: 'hidden', maxHeight: detailsExpanded ? '2500px' : '0', opacity: detailsExpanded ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.25s ease', pointerEvents: detailsExpanded ? 'auto' : 'none' }}>
+				<TMDBDetails
+					poster_path={tmdb.poster_path}
+					title={tmdb.title}
+					original_title={tmdb.original_title}
+					release_date={tmdb.release_date}
+					overview={tmdb.overview}
+					genres={tmdb.genres}
+					images_backdrops={tmdb?.images?.backdrops ?? []}
+					credits={tmdb.credits}
+					video_path={flix?.video_path_exists ? flix.video_path : null}
+				/>
+			</div>
+			<DetailsToggleButton expanded={detailsExpanded} onToggle={() => setDetailsExpanded(v => !v)} />
 			<WatchTogetherControls
 				room={room}
 				userCount={userCount}
