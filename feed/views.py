@@ -1,7 +1,10 @@
 from django.shortcuts import(
 	 Http404, 
 	 get_object_or_404,
+	 render,
 )
+import requests as http_requests
+from django.conf import settings
 from rest_framework.generics import (
 	RetrieveAPIView,
 	CreateAPIView,
@@ -94,3 +97,51 @@ class CommentDetail(RetrieveUpdateDestroyAPIView):
 			flix = get_object_or_404(flix, tmdb_id=kwargs['tmdb_id'])
 			return getattr(flix, '{}_comments'.format(self.kwargs['flix_type'])).all()
 		raise Http404()
+
+
+def watch_together_share(request, room_id):
+    node_base_url = getattr(settings, 'NODE_BASE_URL', 'http://node_backend:8080')
+    service_token = getattr(settings, 'NODE_SERVICE_TOKEN', '')
+    tmdb_api_key = getattr(settings, 'TMDB_API_KEY', '')
+    site_url = request.build_absolute_uri('/').rstrip('/')
+
+    try:
+        room_resp = http_requests.get(
+            f'{node_base_url}/watch-together/internal/{room_id}/',
+            headers={'x-service-token': service_token},
+            timeout=5,
+        )
+        room_resp.raise_for_status()
+        movie_id = room_resp.json()['movieId']
+    except Exception:
+        return render(request, 'feed/watch_together_share.html', {
+            'title': 'Watch Together',
+            'description': 'Join a Watch Together room.',
+            'image': '',
+            'redirect_url': f'/watch-together/{room_id}/',
+            'site_url': f'{site_url}/share/watch-together/{room_id}/',
+        })
+
+    try:
+        tmdb_resp = http_requests.get(
+            f'https://api.themoviedb.org/3/movie/{movie_id}',
+            params={'api_key': tmdb_api_key},
+            timeout=5,
+        )
+        tmdb_resp.raise_for_status()
+        tmdb = tmdb_resp.json()
+    except Exception:
+        tmdb = {}
+
+    title = tmdb.get('title') or 'Watch Together'
+    overview = tmdb.get('overview', '')[:200]
+    backdrop = tmdb.get('backdrop_path')
+    image = f'https://image.tmdb.org/t/p/w1280{backdrop}' if backdrop else ''
+
+    return render(request, 'feed/watch_together_share.html', {
+        'title': title,
+        'description': overview or 'Join a Watch Together room on FreeFlix.',
+        'image': image,
+        'redirect_url': f'/watch-together/{room_id}/',
+        'site_url': f'{site_url}/share/watch-together/{room_id}/',
+    })

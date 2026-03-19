@@ -87,6 +87,21 @@ const buildSyncPayload = (roomId, time, isPlaying, extra = {}) => ({
 const createWatchTogetherRouter = () => {
 	const router = express.Router();
 
+	// Internal route for service-to-service calls (e.g. Django share view).
+	// Authenticated by NODE_SERVICE_TOKEN header instead of user JWT.
+	router.get('/internal/:roomId', async (req, res) => {
+		const serviceToken = process.env.NODE_SERVICE_TOKEN || '';
+		const provided = (req.headers['x-service-token'] || '');
+		if (!serviceToken || provided !== serviceToken) {
+			return res.status(403).json({ detail: 'Forbidden.' });
+		}
+		const room = await getRoom(req.params.roomId);
+		if (!room) {
+			return res.status(404).json({ detail: 'Not found.' });
+		}
+		return res.json({ roomId: room.roomId, movieId: room.movieId });
+	});
+
 	router.post('/create/:movieId', async (req, res) => {
 		const token = getBearerToken(req.headers.authorization || '');
 		const user = await verifyToken(token);

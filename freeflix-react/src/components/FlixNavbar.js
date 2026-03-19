@@ -19,7 +19,7 @@ function FlixNavbar() {
       <Navbar variant="dark" fixed="top">
         <Navbar.Brand href="">
           <Link to="/">
-            <img src="https://fontmeme.com/permalink/200803/bde55cd0c72282ba7171b3e11b85f475.png" id="logo" alt="FreeFlix Logo"/>   
+            <img src="https://fontmeme.com/permalink/260319/9297dce8.png" id="logo" alt="FooFlix Logo"/>   
           </Link>
         </Navbar.Brand>
         <Nav className="ml-auto d-flex align-items-center">

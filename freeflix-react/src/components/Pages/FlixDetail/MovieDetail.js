@@ -39,7 +39,7 @@ const MovieDetail = () => {
 
 		try {
 			const response = await axios.post(`/node/watch-together/create/${tmdb_id}/`);
-			const nextInviteLink = `${window.location.origin}${response.data.invitePath}`;
+			const nextInviteLink = `${window.location.origin}/share${response.data.invitePath}`;
 			setInviteLink(nextInviteLink);
 
 			if (navigator.clipboard && navigator.clipboard.writeText) {
