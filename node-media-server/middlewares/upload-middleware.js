@@ -201,16 +201,28 @@ const getOrCreateUpload = async ({ clientUploadId, totalSize, filename, contentT
         contentType,
     });
 
-    upload = await Upload.create({
-        clientUploadId,
-        s3MultipartUploadId: multipartUploadId,
-        objectKey,
-        status: 'initiated',
-        totalPartSize: 0,
-        totalSize,
-        bufferedSize: 0,
-        bufferedChunk: null,
-    });
+    try {
+        upload = await Upload.create({
+            clientUploadId,
+            s3MultipartUploadId: multipartUploadId,
+            objectKey,
+            status: 'initiated',
+            totalPartSize: 0,
+            totalSize,
+            bufferedSize: 0,
+            bufferedChunk: null,
+        });
+    } catch (err) {
+        if (err.name === 'SequelizeUniqueConstraintError') {
+            // A parallel chunk beat us to the INSERT. Abort the S3 multipart upload
+            // we just created (it will never be used) and return the winner's record.
+            try { await abortMultipartUpload({ key: objectKey, uploadId: multipartUploadId }); } catch {}
+            upload = await Upload.findOne({ where: { clientUploadId } });
+            if (!upload) throw err;
+            return upload;
+        }
+        throw err;
+    }
 
     return upload;
 };
@@ -366,8 +378,18 @@ UploadMiddleware.prototype.continue = function () {
                 return res.status(404).end();
             }
 
+            const parts = await UploadPart.findAll({
+                where: { uploadId: upload.id },
+                attributes: ['partNumber', 'size'],
+            });
+
+            // Sum part sizes from the DB rather than relying on upload.totalPartSize,
+            // which can be underreported due to concurrent-write races during parallel upload.
+            const uploadedFromParts = parts.reduce((sum, p) => sum + p.size, 0);
+
             return res.json({
-                uploaded: upload.status === 'completed' ? upload.totalSize : getUploadedBytes(upload),
+                uploaded: upload.status === 'completed' ? upload.totalSize : uploadedFromParts,
+                completedParts: parts.map(p => p.partNumber),
             });
         } catch {
             return res.status(404).end();
@@ -398,40 +420,46 @@ UploadMiddleware.prototype.processChunkUpload = async function (req, res, next, 
         }
 
         const actualChunkSize = req.chunkBuffer.length;
-        const currentUploaded = getUploadedBytes(upload);
-        const chunkEndExclusive = req.contentRange.start + actualChunkSize;
 
-        if (req.contentRange.start < currentUploaded) {
-            if (chunkEndExclusive <= currentUploaded) {
-                req.uploaded = currentUploaded;
-                req.upload = upload;
-                next();
-                return;
-            }
-
-            return res.status(409).send('Overlapping chunk upload is not allowed.');
-        }
-
-        if (req.contentRange.start > currentUploaded) {
-            return res.status(409).send('Chunk upload is out of order.');
-        }
-
-        if (!isComplete && actualChunkSize === 0) {
+        if (actualChunkSize === 0) {
             return res.status(400).send('Chunk payload is empty.');
         }
 
-        const existingBuffer = upload.bufferedChunk ? Buffer.from(upload.bufferedChunk) : EMPTY_BUFFER;
-        const combinedBuffer = actualChunkSize ? Buffer.concat([existingBuffer, req.chunkBuffer]) : existingBuffer;
+        // Derive the S3 part number from the chunk's starting byte offset.
+        // Chunks must be exactly maxChunkSize bytes (except the last one).
+        const partNumber = Math.floor(req.contentRange.start / this.maxChunkSize) + 1;
+        const isLastChunk = req.contentRange.end === req.contentRange.total;
+
+        if (!isLastChunk && actualChunkSize < MIN_S3_PART_SIZE) {
+            return res.status(400).send(`Non-final chunks must be at least ${MIN_S3_PART_SIZE} bytes.`);
+        }
 
         if (isComplete) {
             validateCompleteFields(req.fields);
             const extension = validateAllowedExtension(req.fields.filename);
             const finalObjectKey = await getFinalObjectKey(req.fields, extension);
 
-            await persistBufferedData(upload, combinedBuffer);
-
-            if (upload.bufferedSize > 0) {
-                await flushBufferedPart(upload);
+            // Upload the final part (may be smaller than MIN_S3_PART_SIZE — allowed by S3).
+            const existingLastPart = await UploadPart.findOne({ where: { uploadId: upload.id, partNumber } });
+            if (!existingLastPart) {
+                const etag = await uploadPart({
+                    key: upload.objectKey,
+                    uploadId: upload.s3MultipartUploadId,
+                    partNumber,
+                    body: req.chunkBuffer,
+                });
+                try {
+                    await UploadPart.create({
+                        uploadId: upload.id,
+                        partNumber,
+                        size: actualChunkSize,
+                        etag,
+                    });
+                    upload.totalPartSize += actualChunkSize;
+                    await upload.save();
+                } catch (err) {
+                    if (err.name !== 'SequelizeUniqueConstraintError') throw err;
+                }
             }
 
             const parts = await UploadPart.findAll({
@@ -476,14 +504,41 @@ UploadMiddleware.prototype.processChunkUpload = async function (req, res, next, 
             return;
         }
 
-        await persistBufferedData(upload, combinedBuffer);
+        // Non-final chunk: upload directly as an S3 part (no buffering needed since
+        // chunkSize === MIN_S3_PART_SIZE). Idempotent — skip if already uploaded.
+        const existingPart = await UploadPart.findOne({ where: { uploadId: upload.id, partNumber } });
+        if (existingPart) {
+            req.uploaded = upload.totalPartSize;
+            req.upload = upload;
+            next();
+            return;
+        }
 
-        if (upload.bufferedSize >= MIN_S3_PART_SIZE) {
-            await flushBufferedPart(upload);
+        const etag = await uploadPart({
+            key: upload.objectKey,
+            uploadId: upload.s3MultipartUploadId,
+            partNumber,
+            body: req.chunkBuffer,
+        });
+
+        try {
+            await UploadPart.create({
+                uploadId: upload.id,
+                partNumber,
+                size: actualChunkSize,
+                etag,
+            });
+            upload.totalPartSize += actualChunkSize;
+            if (upload.status === 'initiated') upload.status = 'uploading';
+            await upload.save();
+        } catch (err) {
+            // A parallel request for the same part won the INSERT race — that's fine,
+            // the part is already recorded. S3 last-write-wins for the same part number.
+            if (err.name !== 'SequelizeUniqueConstraintError') throw err;
         }
 
         req.upload = upload;
-        req.uploaded = getUploadedBytes(upload);
+        req.uploaded = upload.totalPartSize;
         next();
     } catch (error) {
         console.error('Upload processing error:', error);
@@ -541,6 +596,83 @@ UploadMiddleware.prototype.cancel = function () {
             } catch (error) {
                 console.error('Upload cancel error:', error);
                 return res.status(404).end();
+            }
+        },
+    ];
+};
+
+// Finalizes a parallel upload: completes the S3 multipart upload and notifies Django.
+// Called by the client after all chunk parts have been uploaded via POST /:chunkid/.
+// Receives JSON body: { filename, tmdb_id, season_number?, episode_number? }
+UploadMiddleware.prototype.finalize = function () {
+    return [
+        async (req, res) => {
+            try {
+                if (!CLIENT_UPLOAD_ID_RE.test(req.params.chunkid)) {
+                    return res.status(400).send('Invalid upload ID.');
+                }
+
+                validateCompleteFields(req.body);
+
+                if (!req.body.filename) {
+                    return res.status(400).send('filename is required.');
+                }
+
+                const upload = await Upload.findOne({
+                    where: { clientUploadId: req.params.chunkid },
+                });
+
+                if (!upload) {
+                    return res.status(404).send('Upload not found.');
+                }
+
+                if (upload.status === 'completed') {
+                    return res.json({ uploaded: upload.totalSize });
+                }
+
+                const extension = validateAllowedExtension(req.body.filename);
+                const finalObjectKey = await getFinalObjectKey(req.body, extension);
+
+                const parts = await UploadPart.findAll({
+                    where: { uploadId: upload.id },
+                    order: [['partNumber', 'ASC']],
+                });
+
+                if (!parts.length) {
+                    return res.status(400).send('No uploaded parts found for completion.');
+                }
+
+                await completeMultipartUpload({
+                    key: upload.objectKey,
+                    uploadId: upload.s3MultipartUploadId,
+                    parts: parts.map((part) => ({
+                        ETag: part.etag,
+                        PartNumber: part.partNumber,
+                    })),
+                });
+
+                if (upload.objectKey !== finalObjectKey) {
+                    await copyObject({
+                        sourceKey: upload.objectKey,
+                        destinationKey: finalObjectKey,
+                    });
+                    await deleteObject({ key: upload.objectKey });
+                    upload.objectKey = finalObjectKey;
+                }
+
+                await patchDjangoExtension(req.body, extension);
+
+                upload.status = 'completed';
+                upload.completedAt = new Date();
+                upload.totalPartSize = upload.totalSize;
+                upload.bufferedChunk = null;
+                upload.bufferedSize = 0;
+                await upload.save();
+
+                return res.json({ uploaded: upload.totalSize });
+            } catch (error) {
+                console.error('Finalize error:', error);
+                res.status(error.status || 500).send(error.message || 'Finalize failed.');
             }
         },
     ];
