@@ -10,6 +10,7 @@ export const useWatchTogetherHostSocket = ({
 	setConnectionLabel,
 	onRoomClosed,
 	onError,
+	onUserCountChange = () => {},
 }) => {
 	const socketRef = useRef(null);
 	const isPlayingRef = useRef(false);
@@ -18,6 +19,7 @@ export const useWatchTogetherHostSocket = ({
 		setConnectionLabel,
 		onRoomClosed,
 		onError,
+		onUserCountChange,
 	});
 
 	useEffect(() => {
@@ -30,8 +32,9 @@ export const useWatchTogetherHostSocket = ({
 			setConnectionLabel,
 			onRoomClosed,
 			onError,
+			onUserCountChange,
 		};
-	}, [getCurrentTime, setConnectionLabel, onRoomClosed, onError]);
+	}, [getCurrentTime, setConnectionLabel, onRoomClosed, onError, onUserCountChange]);
 
 	const logDebug = useCallback((event, details = {}) => {
 		if (!debug) {
@@ -96,6 +99,11 @@ export const useWatchTogetherHostSocket = ({
 		socket.on('error', (payload) => {
 			logDebug('error', payload);
 			latestHandlersRef.current.onError(payload?.message || 'Watch Together connection failed.');
+		});
+
+		socket.on('user_count', (payload) => {
+			logDebug('user_count', payload);
+			latestHandlersRef.current.onUserCountChange(payload.count);
 		});
 
 		syncIntervalId = window.setInterval(() => {

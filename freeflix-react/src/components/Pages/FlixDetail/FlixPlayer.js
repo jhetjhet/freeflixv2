@@ -44,6 +44,7 @@ export const WatchTogetherPlayer = ({
 	syncInterval = 4000,
 	onRoomClosed = () => { },
 	onError = () => { },
+	onUserCountChange = () => { },
 }) => {
 	if (isHost) {
 		return (
@@ -54,6 +55,7 @@ export const WatchTogetherPlayer = ({
 				syncInterval={syncInterval}
 				onRoomClosed={onRoomClosed}
 				onError={onError}
+				onUserCountChange={onUserCountChange}
 			/>
 		);
 	}
@@ -66,6 +68,7 @@ export const WatchTogetherPlayer = ({
 			syncInterval={syncInterval}
 			onRoomClosed={onRoomClosed}
 			onError={onError}
+			onUserCountChange={onUserCountChange}
 		/>
 	);
 };

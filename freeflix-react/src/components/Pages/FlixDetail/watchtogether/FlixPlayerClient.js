@@ -13,6 +13,7 @@ export const FlixPlayerClient = ({
 	subtitles = [],
 	onRoomClosed = () => {},
 	onError = () => {},
+	onUserCountChange = () => {},
 }) => {
 	const [hasJoinedPlayback, setHasJoinedPlayback] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -56,6 +57,7 @@ export const FlixPlayerClient = ({
 		setIsPlaying,
 		onRoomClosed,
 		onError,
+		onUserCountChange,
 	});
 
 	const handlePlay = useCallback(() => {

@@ -12,6 +12,7 @@ export const FlixPlayerHost = ({
 	syncInterval = 4000,
 	onRoomClosed = () => {},
 	onError = () => {},
+	onUserCountChange = () => {},
 }) => {
 	const {
 		connectionLabel,
@@ -47,6 +48,7 @@ export const FlixPlayerHost = ({
 		setPlaybackRate: () => {},
 		onRoomClosed,
 		onError,
+		onUserCountChange,
 	});
 
 	const handlePlay = useCallback(() => {

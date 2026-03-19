@@ -194,6 +194,9 @@ const registerWatchTogetherHandlers = (io) => {
 			room.updatedAt = Date.now();
 			await saveRoom(room);
 
+			const roomSize = io.sockets.adapter.rooms.get(roomId)?.size ?? 1;
+			io.to(roomId).emit('user_count', { roomId, count: roomSize });
+
 			socket.emit('room_joined', {
 				roomId,
 				isHost: socket.data.isHost,
@@ -289,6 +292,9 @@ const registerWatchTogetherHandlers = (io) => {
 			if (!room) {
 				return;
 			}
+
+			const sizeAfterLeave = io.sockets.adapter.rooms.get(roomId)?.size ?? 0;
+			io.to(roomId).emit('user_count', { roomId, count: sizeAfterLeave });
 
 			if (room.hostSocketId === socket.id) {
 				room.hostSocketId = null;
