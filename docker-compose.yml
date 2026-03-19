@@ -32,6 +32,8 @@ services:
       - .env
     environment:
       - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
+      - NODE_BASE_URL=${NODE_BASE_URL:-http://node_backend:8080}
+      - TMDB_API_KEY=${TMDB_API_KEY}
       - AWS_REGION=${AWS_REGION}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}

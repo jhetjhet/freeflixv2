@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }} — Watch Together</title>
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="{{ site_url }}" />
+  <meta property="og:title"       content="🎬 Join: {{ title }} — Watch Together" />
+  <meta property="og:description" content="{{ description }}" />
+  {% if image %}
+  <meta property="og:image"       content="{{ image }}" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="720" />
+  {% endif %}
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="🎬 Join: {{ title }} — Watch Together" />
+  <meta name="twitter:description" content="{{ description }}" />
+  {% if image %}
+  <meta name="twitter:image"       content="{{ image }}" />
+  {% endif %}
+
+  <!-- Redirect real users to the React app immediately -->
+  <meta http-equiv="refresh" content="0;url={{ redirect_url }}" />
+</head>
+<body>
+  <script>window.location.replace("{{ redirect_url }}");</script>
+  <p>Redirecting to watch room…</p>
+</body>
+</html>

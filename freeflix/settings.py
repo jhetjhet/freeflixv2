@@ -22,6 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 NODE_SERVICE_TOKEN = os.getenv('NODE_SERVICE_TOKEN', '')
+NODE_BASE_URL = os.getenv('NODE_BASE_URL', 'http://node_backend:8080')
+TMDB_API_KEY = os.getenv('TMDB_API_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'

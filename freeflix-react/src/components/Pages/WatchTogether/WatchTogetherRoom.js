@@ -18,8 +18,9 @@ const WatchTogetherRoom = () => {
 	const [toast, setToast] = useState({ show: false, type: 'error', message: '' });
 
 	const handleCopyRoomUrl = async () => {
+		const shareUrl = `${window.location.origin}/share/watch-together/${room.roomId}`;
 		try {
-			await navigator.clipboard.writeText(window.location.href);
+			await navigator.clipboard.writeText(shareUrl);
 			setToast({ show: true, type: 'success', message: 'Room URL copied to clipboard.' });
 		} catch (error) {
 			setToast({ show: true, type: 'error', message: 'Failed to copy room URL.' });
