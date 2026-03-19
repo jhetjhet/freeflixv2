@@ -11,7 +11,7 @@ A full-featured media streaming platform built with modern web technologies. Upl
 ## Features
 
 - 🎬 TMDB integration for detailed movie/series information
-- ⚡ Chunked file uploads with pause/resume/cancel capability backed by S3 multipart upload
+- ⚡ Parallel chunked uploads with pause/resume/cancel and per-chunk retry, backed by S3 multipart upload
 - ☁️ S3-compatible object storage for all video files (AWS S3, iDrive E2, etc.)
 - 📺 Support for series with seasons and episodes
 - 🎨 Responsive, mobile-friendly design
