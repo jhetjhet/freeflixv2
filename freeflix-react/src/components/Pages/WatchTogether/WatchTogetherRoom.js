@@ -221,20 +221,21 @@ const WatchTogetherRoom = () => {
 				userCount={userCount}
 				onCopyRoomUrl={handleCopyRoomUrl}
 			/>
+
+			<div className="my-4" />
+
 			{flix?.video_path_exists ? (
-				<div className="d-flex flex-column align-items-center justify-content-center">
-					<div className="col-12 col-md-10 col-lg-8">
-						<WatchTogetherPlayer
-							roomId={room.roomId}
-							id={flix?.video_path}
-							video_url={flix.video_url}
-							subtitles={flix?.subtitles ?? []}
-							isHost={room.isHost}
-							syncInterval={room.syncInterval}
-							onRoomClosed={() => setNotFound(true)}
-							onError={(message) => setToast({ show: true, type: 'error', message })}						onUserCountChange={setUserCount}						/>
-					</div>
-				</div>
+				<WatchTogetherPlayer
+					roomId={room.roomId}
+					id={flix?.video_path}
+					video_url={flix.video_url}
+					subtitles={flix?.subtitles ?? []}
+					isHost={room.isHost}
+					syncInterval={room.syncInterval}
+					onRoomClosed={() => setNotFound(true)}
+					onError={(message) => setToast({ show: true, type: 'error', message })}
+					onUserCountChange={setUserCount}
+				/>
 			) : (
 				<div className="container py-4 text-center">
 					<p className="md-text">This room is currently unavailable because the video could not be found.</p>

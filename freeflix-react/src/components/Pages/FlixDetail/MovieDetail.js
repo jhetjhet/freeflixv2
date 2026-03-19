@@ -135,12 +135,12 @@ const MovieDetail = () => {
 					</div>
 				</div>
 			)}
-			{(flix?.video_path_exists) &&
-				<div className="P-4">
-					<div className="col-12">
-						<MoviePlayer id={flix?.video_path} video_url={flix.video_url} subtitles={flix?.subtitles ?? []} />
-					</div>
-				</div>}
+
+			<div className="my-4" />
+			
+			{(flix?.video_path_exists) && (
+				<MoviePlayer id={flix?.video_path} video_url={flix.video_url} subtitles={flix?.subtitles ?? []} />
+			)}
 		</div>
 	);
 }
