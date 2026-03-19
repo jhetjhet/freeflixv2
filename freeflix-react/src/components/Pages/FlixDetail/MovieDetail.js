@@ -11,6 +11,7 @@ import axios from 'axios';
 import FlixForm from '../FlixCreate/FlixForm.js';
 import NotFound from '../NotFound.js';
 import TMDBDetailsSkeleton from './TMDBDetailsSkeleton.js';
+import DetailsToggleButton from './DetailsToggleButton.js';
 
 const MovieDetail = () => {
 	const { tmdb_id } = useParams();
@@ -20,6 +21,7 @@ const MovieDetail = () => {
 	const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
 	const [showForm, setShowForm] = useState(false);
 	const [notFound, setNotFound] = useState(false);
+	const [detailsExpanded, setDetailsExpanded] = useState(true);
 	const { isAuthenticated, user } = useAuth();
 	const canCreateFlix = Boolean(user?.can_create_flix);
 	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
@@ -104,17 +106,22 @@ const MovieDetail = () => {
 			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
 
 			{(!isTMDBLoading && tmdb) && (
-				<TMDBDetails
-					poster_path={tmdb.poster_path}
-					title={tmdb.title}
-					original_title={tmdb.original_title}
-					release_date={tmdb.release_date}
-					overview={tmdb.overview}
-					genres={tmdb.genres}
-					images_backdrops={tmdb?.images?.backdrops ?? []}
-					credits={tmdb.credits}
-					video_path={flix?.video_path_exists ? flix.video_path : null}
-				/>
+			<>
+				<div style={{ overflow: 'hidden', maxHeight: detailsExpanded ? '2500px' : '0', opacity: detailsExpanded ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.25s ease', pointerEvents: detailsExpanded ? 'auto' : 'none' }}>
+					<TMDBDetails
+						poster_path={tmdb.poster_path}
+						title={tmdb.title}
+						original_title={tmdb.original_title}
+						release_date={tmdb.release_date}
+						overview={tmdb.overview}
+						genres={tmdb.genres}
+						images_backdrops={tmdb?.images?.backdrops ?? []}
+						credits={tmdb.credits}
+						video_path={flix?.video_path_exists ? flix.video_path : null}
+					/>
+				</div>
+				<DetailsToggleButton expanded={detailsExpanded} onToggle={() => setDetailsExpanded(v => !v)} />
+			</>
 			)}
 
 			{isAuthenticated && flix?.video_path_exists && (
@@ -135,12 +142,12 @@ const MovieDetail = () => {
 					</div>
 				</div>
 			)}
-			{(flix?.video_path_exists) &&
-				<div className="P-4">
-					<div className="col-12">
-						<MoviePlayer id={flix?.video_path} video_url={flix.video_url} subtitles={flix?.subtitles ?? []} />
-					</div>
-				</div>}
+
+			<div className="my-4" />
+
+			{(flix?.video_path_exists) && (
+				<MoviePlayer id={flix?.video_path} video_url={flix.video_url} subtitles={flix?.subtitles ?? []} />
+			)}
 		</div>
 	);
 }

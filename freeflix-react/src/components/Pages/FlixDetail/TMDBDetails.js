@@ -34,7 +34,7 @@ const BackdropsViewer = ({ images_backdrops = [], title = "" }) => {
 	return (
 		<>
 			<div className="row">
-				<div className="backdrop-imgs d-flex">
+				<div className="backdrop-imgs w-100 d-flex">
 					{images_backdrops.map((b, idx) => (
 						<div key={b.file_path} className="h-100 mx-1" style={{ cursor: 'pointer' }} onClick={() => setLightboxIndex(idx)}>
 							<img className="h-100" src={`${process.env.REACT_APP_TMDB_IMAGE_BASE_URL}${b.file_path}`} alt={`${title}:(backdrop)`} />

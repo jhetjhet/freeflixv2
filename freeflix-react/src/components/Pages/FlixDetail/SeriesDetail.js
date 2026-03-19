@@ -12,12 +12,14 @@ import { useTMDB } from '../../../contexts/TMDBContext';
 import { useFlix } from '../../../contexts/FlixContext';
 import NotFound from '../NotFound.js';
 import TMDBDetailsSkeleton from './TMDBDetailsSkeleton.js';
+import DetailsToggleButton from './DetailsToggleButton.js';
 
 const SeriesDetail = () => {
 	const { flix_id, tmdb_id } = useParams();
 	const [selectedSeason, setSelectedSeason] = useState(null);
 	const [selectedEpisode, setSelectedEpisode] = useState(null);
 	const [notFound, setNotFound] = useState(false);
+	const [detailsExpanded, setDetailsExpanded] = useState(true);
 	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
 	const { flix, load: loadFlix, isLoading: isFlixLoading } = useFlix();
 
@@ -38,17 +40,22 @@ const SeriesDetail = () => {
 			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
 
 			{(!isTMDBLoading && tmdb) && (
-				<TMDBDetails
-					poster_path={tmdb.poster_path}
-					title={tmdb.name}
-					original_title={tmdb.original_name}
-					release_date={tmdb.first_air_date}
-					overview={tmdb.overview}
-					genres={tmdb.genres}
-					images_backdrops={tmdb?.images?.backdrops ?? []}
-					credits={tmdb.credits}
-					video_path={flix?.video_path_exists ? flix.video_path : null}
-				/>
+			<>
+				<div style={{ overflow: 'hidden', maxHeight: detailsExpanded ? '2500px' : '0', opacity: detailsExpanded ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.25s ease', pointerEvents: detailsExpanded ? 'auto' : 'none' }}>
+					<TMDBDetails
+						poster_path={tmdb.poster_path}
+						title={tmdb.name}
+						original_title={tmdb.original_name}
+						release_date={tmdb.first_air_date}
+						overview={tmdb.overview}
+						genres={tmdb.genres}
+						images_backdrops={tmdb?.images?.backdrops ?? []}
+						credits={tmdb.credits}
+						video_path={flix?.video_path_exists ? flix.video_path : null}
+					/>
+				</div>
+				<DetailsToggleButton expanded={detailsExpanded} onToggle={() => setDetailsExpanded(v => !v)} />
+			</>
 			)}
 
 			<div>

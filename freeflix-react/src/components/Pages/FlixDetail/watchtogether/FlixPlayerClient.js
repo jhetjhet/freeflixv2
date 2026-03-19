@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ClientCustomControl } from './ClientCustomControl';
 import { useWatchTogetherClientPlayback } from '../../../../helpers/watchtogether/useWatchTogetherClientPlayback';
 import { useWatchTogetherClientSocket } from '../../../../helpers/watchtogether/useWatchTogetherClientSocket';
+import { VideoPlayerContainer } from './VideoPlayerContainer';
 import VideoPlayer from '../VideoPlayer';
 
 const DEBUG_SYNC = true;
@@ -13,6 +14,7 @@ export const FlixPlayerClient = ({
 	subtitles = [],
 	onRoomClosed = () => {},
 	onError = () => {},
+	onUserCountChange = () => {},
 }) => {
 	const [hasJoinedPlayback, setHasJoinedPlayback] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -56,6 +58,7 @@ export const FlixPlayerClient = ({
 		setIsPlaying,
 		onRoomClosed,
 		onError,
+		onUserCountChange,
 	});
 
 	const handlePlay = useCallback(() => {
@@ -195,23 +198,12 @@ export const FlixPlayerClient = ({
 					<span className="sm-text">Waiting for the host clock before playback starts.</span>
 				</div>
 			)}
-			<div
+			<VideoPlayerContainer
 				className="mt-2"
-				ref={playerContainerRef}
+				containerRef={playerContainerRef}
 				onMouseMove={handlePlayerMouseMove}
 				onMouseLeave={handlePlayerMouseLeave}
-				style={{
-					boxShadow: '0 4px 24px rgba(0,0,0,0.9), 0 1.5px 8px rgba(255,255,255,0.08) inset',
-					borderRadius: '12px',
-					overflow: 'hidden',
-					background: '#111',
-					position: 'relative',
-					width: 'calc(100% - 2rem)',
-					minHeight: '360px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
+				style={{ width: 'calc(100% - 2rem)' }}
 			>
 				{shouldShowJoinOverlay && (
 					<div
@@ -287,11 +279,9 @@ export const FlixPlayerClient = ({
 						)}
 					</>
 				) : (
-					<div>
-						<p>No video available.</p>
-					</div>
+					<p className="sm-text" style={{ color: '#666' }}>No video available.</p>
 				)}
-			</div>
+			</VideoPlayerContainer>
 		</div>
 	);
 };

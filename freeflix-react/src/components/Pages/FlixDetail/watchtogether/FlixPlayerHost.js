@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { useWatchTogetherHostPlayback } from '../../../../helpers/watchtogether/useWatchTogetherHostPlayback';
 import { useWatchTogetherHostSocket } from '../../../../helpers/watchtogether/useWatchTogetherHostSocket';
+import { VideoPlayerContainer } from './VideoPlayerContainer';
 import VideoPlayer from '../VideoPlayer';
 
 const DEBUG_SYNC = true;
@@ -10,8 +11,9 @@ export const FlixPlayerHost = ({
 	video_url = '',
 	subtitles = [],
 	syncInterval = 4000,
-	onRoomClosed = () => {},
-	onError = () => {},
+	onRoomClosed = () => { },
+	onError = () => { },
+	onUserCountChange = () => { },
 }) => {
 	const {
 		connectionLabel,
@@ -44,9 +46,10 @@ export const FlixPlayerHost = ({
 		handleRemotePlaybackEvent,
 		setConnectionLabel,
 		setIsPlaying,
-		setPlaybackRate: () => {},
+		setPlaybackRate: () => { },
 		onRoomClosed,
 		onError,
+		onUserCountChange,
 	});
 
 	const handlePlay = useCallback(() => {
@@ -62,7 +65,7 @@ export const FlixPlayerHost = ({
 	}, [syncHandleSeek]);
 
 	return (
-		<div className="d-flex flex-column align-items-center justify-content-center">
+		<VideoPlayerContainer>
 			<div className="mt-4 mb-2 w-100 text-center">
 				<span className="md-text">{connectionLabel}</span>
 			</div>
@@ -71,44 +74,26 @@ export const FlixPlayerHost = ({
 					<span className="sm-text">{syncNotice}</span>
 				</div>
 			)}
-			<div
-				className="mt-2"
-				style={{
-					boxShadow: '0 4px 24px rgba(0,0,0,0.9), 0 1.5px 8px rgba(255,255,255,0.08) inset',
-					borderRadius: '12px',
-					overflow: 'hidden',
-					background: '#111',
-					position: 'relative',
-					width: 'calc(100% - 2rem)',
-					minHeight: '360px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				{video_url ? (
-					<div style={{ width: '100%', visibility: shouldShowPlayer ? 'visible' : 'hidden' }}>
-						<VideoPlayer
-							video_url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
-							subtitles={subtitles}
-							playerRef={playerRef}
-							isPlaying={isPlaying}
-							playbackRate={playbackRate}
-							onPlay={handlePlay}
-							onPause={handlePause}
-							onSeek={handleSeek}
-							onReady={handlePlayerReady}
-							onBuffer={handleBuffer}
-							onBufferEnd={handleBufferEnd}
-							onProgress={handleProgress}
-						/>
-					</div>
-				) : (
-					<div>
-						<p>No video available.</p>
-					</div>
-				)}
-			</div>
-		</div>
+			{video_url ? (
+				<div style={{ width: '100%', visibility: shouldShowPlayer ? 'visible' : 'hidden' }}>
+					<VideoPlayer
+						video_url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
+						subtitles={subtitles}
+						playerRef={playerRef}
+						isPlaying={isPlaying}
+						playbackRate={playbackRate}
+						onPlay={handlePlay}
+						onPause={handlePause}
+						onSeek={handleSeek}
+						onReady={handlePlayerReady}
+						onBuffer={handleBuffer}
+						onBufferEnd={handleBufferEnd}
+						onProgress={handleProgress}
+					/>
+				</div>
+			) : (
+				<p className="sm-text" style={{ color: '#666' }}>No video available.</p>
+			)}
+		</VideoPlayerContainer>
 	);
 };
