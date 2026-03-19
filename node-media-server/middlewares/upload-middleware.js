@@ -85,7 +85,7 @@ const parseMultipartRequest = (req, maxChunkSize) => new Promise((resolve, rejec
         headers: req.headers,
         limits: {
             files: 1,
-            fileSize: maxChunkSize,
+            fileSize: maxChunkSize + 1, // +1 so exact-size chunks don't trigger the limit event
         },
     });
 
@@ -301,7 +301,7 @@ const patchDjangoExtension = async (fields, extension) => {
     );
 };
 
-function UploadMiddleware(maxChunkSize = 10485760) {
+function UploadMiddleware(maxChunkSize = 1048576 * 5) {
     this.maxChunkSize = maxChunkSize;
 
     this.contentRangeMiddleWare = (req, res, next) => {

@@ -41,9 +41,18 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
         } catch (error) {
             console.error('Failed to fetch user:', error);
-            // Token might be invalid, try refresh
             if (refreshToken) {
-                await refreshAccessToken();
+                const refreshed = await refreshAccessToken();
+                if (refreshed) {
+                    // Retry with the new token that refreshAccessToken set on axios
+                    try {
+                        const response = await axios.get('/auth/users/me/');
+                        setUser(response.data);
+                        setIsAuthenticated(true);
+                    } catch {
+                        logout();
+                    }
+                }
             } else {
                 logout();
             }
