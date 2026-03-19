@@ -21,7 +21,7 @@ const FileUploader = forwardRef(({
     seasonNumber = null,
     episodeNumber = null,
     onFinish = () => { },
-    chunkSize = (1048576 * 3),
+    chunkSize = (1048576 * 5),
     basePath = process.env.REACT_APP_NODE_API_URL,
 }, ref) => {
     // upload
