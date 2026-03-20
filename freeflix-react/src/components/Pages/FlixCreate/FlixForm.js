@@ -235,6 +235,7 @@ class FlixForm extends React.Component {
 						{({
 							percentProgress,
 							pause,
+							isInitializing,
 						}) => (
 							<React.Fragment>
 								<div className="d-flex mt-1 w-100">
@@ -309,8 +310,8 @@ class FlixForm extends React.Component {
 								{(this.state?.video && flix) && (
 									<div className="upload-progress-cont">
 										<ProgressBar now={percentProgress} label={`${percentProgress}%`} className="w-100" />
-										<Button className="ml-2" size="sm" variant="secondary" onClick={() => this.fileUploadRef.current.setPause(!pause)}>
-											{pause ? (percentProgress <= 0 ? 'Start' : 'Resume') : 'Pause'}
+										<Button className="ml-2" size="sm" variant="secondary" disabled={isInitializing} style={isInitializing ? { pointerEvents: 'none', opacity: 0.65, cursor: 'not-allowed' } : {}} onClick={() => this.fileUploadRef.current.setPause(!pause)}>
+											{percentProgress <= 0 ? 'Start' : (pause ? 'Resume' : 'Pause')}
 										</Button>
 									</div>
 								)}

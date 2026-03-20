@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { unstable_batchedUpdates } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import cookie from 'react-cookies';
@@ -30,6 +31,7 @@ const FileUploader = forwardRef(({
     const [file, setFile] = useState(null);
     const [pause, setPause] = useState(true);
     const [percentProgress, setPercentProgress] = useState(0);
+    const [isInitializing, setIsInitializing] = useState(false);
 
     // Refs used inside async callbacks to avoid stale closures.
     const cookieNameRef = useRef(undefined);
@@ -38,6 +40,8 @@ const FileUploader = forwardRef(({
     const resumeStateRef = useRef({ alreadyUploaded: 0, completedParts: [] });
 
     const init = async (file) => {
+        setIsInitializing(true);
+        try {
         const rawCookieName = `${file.name}-${file.lastModified}-${file.size}${cookieNameId ? `-${cookieNameId}` : ''}`;
         const cookieHash = stringToHash(rawCookieName);
         let chunkid = cookie.load(cookieHash);
@@ -60,8 +64,14 @@ const FileUploader = forwardRef(({
 
         cookieNameRef.current = cookieHash;
         resumeStateRef.current = { alreadyUploaded, completedParts };
-        setChunkID(chunkid);
-        setBytesUploaded(alreadyUploaded);
+        unstable_batchedUpdates(() => {
+            setChunkID(chunkid);
+            setBytesUploaded(alreadyUploaded);
+            setIsInitializing(false);
+        });
+        } catch {
+            setIsInitializing(false);
+        }
     };
 
     const doFinish = () => {
@@ -236,7 +246,7 @@ const FileUploader = forwardRef(({
         };
     }, [pause, file, chunkID]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    return children({ bytesUploaded, pause, percentProgress });
+    return children({ bytesUploaded, pause, percentProgress, isInitializing });
 });
 
 export default FileUploader;
