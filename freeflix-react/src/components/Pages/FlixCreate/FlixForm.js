@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import {
 	Button,
 	ProgressBar,
@@ -191,7 +192,7 @@ class FlixForm extends React.Component {
 
 	render() {
 		const { video, subt, showToast, toastMessage } = this.state;
-		const { flix } = this.props;
+		const { flix, flixType } = this.props;
 		const { tmdb } = this.props;
 
 		const seasonNumber = tmdb?.season_number ?? null;
@@ -215,7 +216,17 @@ class FlixForm extends React.Component {
 					<span>{this.props.flixType}</span>
 				</div>
 				<div className="mt-1 w-100 d-flex border-bottom border-flix">
-					<span className="flix-form-title md-text">{this.props.tmdb.title || this.props.tmdb.name}{episodeNumber ? `- Episode ${episodeNumber}` : ''}</span>
+					{(flixType === 'movie' && flix) ? (
+						<Link
+							to={`/flix/movie/${flix.id}/${tmdb.id}`}
+							className="flix-form-title md-text text-primary"
+							style={{ textDecoration: 'underline' }}
+						>
+							{tmdb.title || tmdb.name}
+						</Link>
+					) : (
+						<span className="flix-form-title md-text">{tmdb.title || tmdb.name}{episodeNumber ? `- Episode ${episodeNumber}` : ''}</span>
+					)}
 				</div>
 
 			<FileUploader
