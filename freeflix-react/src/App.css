@@ -432,57 +432,243 @@ footer .freeflix-ft {
 /*FlixForm*/
 .flix-form {
   position: relative;
+  background: #141414;
+  border: 1px solid rgba(229, 9, 20, 0.2) !important;
+  border-left: 3px solid var(--primary-color) !important;
+  border-radius: 8px !important;
   overflow: hidden;
 }
 
 .flix-form * {
-  color: black;
+  color: #e0e0e0;
 }
 
 .flix-form input {
   background-color: inherit;
 }
 
-.flix-del-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
+/* Header */
+.flix-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid rgba(229, 9, 20, 0.12);
+}
+
+.flix-form-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.flix-type-badge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  color: #E50914 !important;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .flix-form-title {
-  color: var(--primary-color);
-  font-weight: bold;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f0f0f0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.upload-progress-cont {
-  width: 100%;
-  height: 100%;
-  margin-top: 1rem;
+.flix-form-title-link {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f0f0f0 !important;
+  text-decoration: none !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+
+.flix-form-title-link:hover {
+  color: var(--primary-color) !important;
+}
+
+.flix-del-btn {
+  background: transparent;
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  border-radius: 4px;
+  color: #cc4444 !important;
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.flix-del-btn:hover {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.6);
+  color: #ff6060 !important;
+}
+
+/* Body */
+.flix-form-body {
+  padding: 0.8rem 0.85rem;
+}
+
+.flix-form-section-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #555 !important;
+  margin: 0 0 0.45rem 0;
+  font-weight: 600;
+}
+
+/* Video row */
+.flix-video-row {
   display: flex;
   align-items: center;
-  /* top: 95%; */
-  /* left: 0; */
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.upload-progress-cont .progress {
+.flix-video-status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.upload-progress-cont .progress .progress-bar {
+.flix-video-link {
+  font-size: 0.8rem;
+  color: #4da8ff !important;
+  text-decoration: none !important;
+  transition: color 0.15s;
+}
+
+.flix-video-link:hover {
+  color: #7ec4ff !important;
+  text-decoration: underline !important;
+}
+
+.flix-video-empty {
+  font-size: 0.8rem;
+  color: #555 !important;
+  font-style: italic;
+}
+
+/* Actions */
+.flix-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.flix-action-btn {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s, color 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.flix-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.flix-action-btn--primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff !important;
+}
+
+.flix-action-btn--primary:hover:not(:disabled) {
+  background: #c4070f;
+  border-color: #c4070f;
+}
+
+.flix-action-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ccc !important;
+}
+
+.flix-action-btn--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff !important;
+}
+
+.flix-action-btn--danger {
+  background: transparent;
+  border-color: rgba(229, 9, 20, 0.4);
+  color: #cc4444 !important;
+}
+
+.flix-action-btn--danger:hover:not(:disabled) {
+  background: rgba(229, 9, 20, 0.12);
+  border-color: rgba(229, 9, 20, 0.7);
+  color: #ff6060 !important;
+}
+
+/* Upload progress */
+.flix-upload-section {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.flix-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.flix-upload-row .progress {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.flix-upload-row .progress-bar {
   background-color: var(--primary-color);
+  border-radius: 999px;
 }
 
-.flix-type-patch {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 0.6rem;
-  color: white;
-  padding: 0 0.5rem;
-  background-color: rgba(0, 0, 0, 0.5);
+.flix-upload-percent {
+  font-size: 0.72rem;
+  color: #666 !important;
+  min-width: 2.8rem;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.flix-type-patch span {
-  color: white;
+/* Subtitles section */
+.flix-subtitles-section {
+  padding: 0.8rem 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .flix-pagination .page-link {

@@ -217,14 +217,14 @@ const FlixSubtitles = ({
 
                         <select
                             className="form-control mr-2"
-                            style={{ maxWidth: '100px', flexShrink: 0 }}
+                            style={{ maxWidth: '100px', flexShrink: 0, color: '#212529' }}
                             value={sub.srclng || 'en'}
                             onChange={e => {
                                 updateFieldSub("srclng", e.target.value, idx);
                             }}
                         >
                             {ISO6391.getAllCodes().map(code => (
-                                <option key={code} value={code}>
+                                <option key={code} value={code} style={{ color: '#212529' }}>
                                     {code}
                                 </option>
                             ))}

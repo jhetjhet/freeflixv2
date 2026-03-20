@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import {
-	Button,
-	ProgressBar,
-} from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { ProgressBar } from 'react-bootstrap';
 import FileUploader from './FileUploader';
 import FlixSubtitles from './FlixSubtitles';
 import SimpleToast from '../../toast/SimpleToast';
@@ -191,7 +189,7 @@ class FlixForm extends React.Component {
 
 	render() {
 		const { video, subt, showToast, toastMessage } = this.state;
-		const { flix } = this.props;
+		const { flix, flixType } = this.props;
 		const { tmdb } = this.props;
 
 		const seasonNumber = tmdb?.season_number ?? null;
@@ -202,126 +200,137 @@ class FlixForm extends React.Component {
 		if (video) vidName = video.name;
 
 		return (
-			<div className="flix-form border border-flix bg-light rounded w-100 d-flex flex-column p-2 my-2">
+			<div className="flix-form w-100 my-2">
 				<SimpleToast type="error" show={showToast} message={toastMessage} onClose={this.closeToast} />
-				{(flix) &&
-					<Button size="sm" variant="danger py-0 px-1 ml-auto" onClick={this.delFlix} className="flix-del-btn mr-2">
-						delete
-					</Button>}
 
 				<input type="file" hidden ref={this.videoSelect} onChange={this.onVideoChange} />
 				<input type="file" hidden ref={this.subtSelect} onChange={this.onSubtChange} accept=".srt" />
-				<div className="flix-type-patch">
-					<span>{this.props.flixType}</span>
+
+				{/* Header */}
+				<div className="flix-form-header">
+					<div className="flix-form-meta">
+						<span className="flix-type-badge">{flixType}</span>
+						{(flixType === 'movie' && flix) ? (
+							<Link to={`/flix/movie/${flix.id}/${tmdb.id}`} className="flix-form-title-link">
+								{tmdb.title || tmdb.name}
+							</Link>
+						) : (
+							<span className="flix-form-title">
+								{tmdb.title || tmdb.name}{episodeNumber ? ` — Ep. ${episodeNumber}` : ''}
+							</span>
+						)}
+					</div>
+					{flix && (
+						<button className="flix-del-btn" onClick={this.delFlix}>
+							&#x2715; Delete
+						</button>
+					)}
 				</div>
-				<div className="mt-1 w-100 d-flex border-bottom border-flix">
-					<span className="flix-form-title md-text">{this.props.tmdb.title || this.props.tmdb.name}{episodeNumber ? `- Episode ${episodeNumber}` : ''}</span>
-				</div>
 
-			<FileUploader
-				ref={this.fileUploadRef}
-						_file={flix ? video : null}
-						chunkSize={1048576 * 5}
-						cookieNameId={flix?.tmdb_id ? flix.tmdb_id : ''}
-						tmdbId={this?.props?.seriesID ?? flix?.tmdb_id}
-						seasonNumber={seasonNumber}
-						episodeNumber={episodeNumber}
-				onFinish={() => {
-					this.setState({ video: null, subt: null, cancelToken: null, percentProgress: 0 });
-					this.videoSelect.current.value = null;
-					this.props.onFlixChange();
-				}}
-					>
-						{({
-							percentProgress,
-							pause,
-							isInitializing,
-						}) => (
-							<React.Fragment>
-								<div className="d-flex mt-1 w-100">
-									<div className="d-flex flex-column w-100 pr-2">
-											<div className="d-flex align-items-center">
-											<span className="md-text mr-1">Video: </span>
-											{(typeof vidName === 'string' && vidName.trim() !== '') ? (
-												<a className="md-text text-primary" href={vidName} target="_blank" rel="noopener noreferrer">
-													{flix?.title || tmdb?.title || tmdb?.name}
-												</a>
-											) : (
-												<span className="md-text text-muted">No video uploaded yet.</span>
-											)}
-										</div>
-									</div>
-									<div className="ml-auto mt-auto d-flex">
-										{percentProgress > 0 && (
-											<Button
-												size="sm"
-												className="mr-1 py-0 px-1"
-												variant="danger"
-												onClick={() => {
-													this.fileUploadRef.current.cancelUpload();
-													this.setState({ video: null, subt: null, cancelToken: null });
-												}}
-											>
-												cancel
-											</Button>
-										)}
+				{/* Content */}
+				<FileUploader
+					ref={this.fileUploadRef}
+					_file={flix ? video : null}
+					chunkSize={1048576 * 5}
+					cookieNameId={flix?.tmdb_id ? flix.tmdb_id : ''}
+					tmdbId={this?.props?.seriesID ?? flix?.tmdb_id}
+					seasonNumber={seasonNumber}
+					episodeNumber={episodeNumber}
+					onFinish={() => {
+						this.setState({ video: null, subt: null, cancelToken: null, percentProgress: 0 });
+						this.videoSelect.current.value = null;
+						this.props.onFlixChange();
+					}}
+				>
+					{({ percentProgress, pause, isInitializing }) => (
+						<div className="flix-form-body">
 
-										{true &&
-											<React.Fragment>
-												<Button size="sm" className="mr-1 py-0 px-1" variant="warning" onClick={this.onVideoSelect}>
-													video
-												</Button>
+							{/* Video row */}
+							<p className="flix-form-section-label">Video</p>
+							<div className="flix-video-row">
+								<div className="flix-video-status">
+									{(typeof vidName === 'string' && vidName.trim() !== '') ? (
+										<a className="flix-video-link" href={vidName} target="_blank" rel="noopener noreferrer">
+											{flix?.title || tmdb?.title || tmdb?.name}
+										</a>
+									) : (
+										<span className="flix-video-empty">No video uploaded yet.</span>
+									)}
+								</div>
+								<div className="flix-form-actions">
+									{percentProgress > 0 && (
+										<button
+											className="flix-action-btn flix-action-btn--danger"
+											onClick={() => {
+												this.fileUploadRef.current.cancelUpload();
+												this.setState({ video: null, subt: null, cancelToken: null });
+											}}
+										>
+											Cancel
+										</button>
+									)}
+									<button className="flix-action-btn flix-action-btn--secondary" onClick={this.onVideoSelect}>
+										{video ? '↺ Replace' : '↑ Select Video'}
+									</button>
+									{!flix && (
+										<button
+											className="flix-action-btn flix-action-btn--primary"
+											disabled={this.state.isRegisterLoading}
+											onClick={() => {
+												this.setState({ isRegisterLoading: true });
+												this.submitFlix(() => {
+													if (this.state.video && this.fileUploadRef?.current) {
+														this.fileUploadRef.current.setPause(false);
+													}
+													this.setState({ isRegisterLoading: false });
+												});
+											}}
+										>
+											{this.state.isRegisterLoading ? 'Registering…' : 'Register'}
+										</button>
+									)}
+									{(flix && subt) && (
+										<button
+											className="flix-action-btn flix-action-btn--primary"
+											onClick={() => {
+												this.setState({ isRegisterLoading: true });
+												this.patchFlix(() => {
+													this.setState({ isRegisterLoading: false });
+												});
+											}}
+										>
+											Update
+										</button>
+									)}
+								</div>
+							</div>
 
-												{!flix && (
-													<Button
-														disabled={this.state.isRegisterLoading}
-														size="sm"
-														variant="success"
-														onClick={() => {
-															this.setState({ isRegisterLoading: true });
-
-															this.submitFlix(() => {
-																if (this.state.video && this.fileUploadRef?.current) {
-																	this.fileUploadRef.current.setPause(false);
-																}
-
-																this.setState({ isRegisterLoading: false });
-															});
-														}}>
-														register
-													</Button>
-												)}
-
-												{(flix && subt) && (
-													<Button size="sm" variant="success py-0 px-1" onClick={() => {
-														this.setState({ isRegisterLoading: true });
-
-														this.patchFlix(() => {
-															this.setState({ isRegisterLoading: false });
-														});
-													}}>
-														update
-													</Button>
-												)}
-											</React.Fragment>}
+							{/* Upload progress */}
+							{(this.state?.video && flix) && (
+								<div className="flix-upload-section">
+									<p className="flix-form-section-label">
+										{percentProgress <= 0 ? 'Ready to upload' : `Uploading — ${percentProgress}%`}
+									</p>
+									<div className="flix-upload-row">
+										<ProgressBar now={percentProgress} className="flex-grow-1" />
+										<button
+											className="flix-action-btn flix-action-btn--secondary"
+											disabled={isInitializing}
+											style={isInitializing ? { pointerEvents: 'none', opacity: 0.45, cursor: 'not-allowed' } : {}}
+											onClick={() => this.fileUploadRef.current.setPause(!pause)}
+										>
+											{percentProgress <= 0 ? 'Start' : (pause ? 'Resume' : 'Pause')}
+										</button>
 									</div>
 								</div>
+							)}
+						</div>
+					)}
+				</FileUploader>
 
-								{(this.state?.video && flix) && (
-									<div className="upload-progress-cont">
-										<ProgressBar now={percentProgress} label={`${percentProgress}%`} className="w-100" />
-										<Button className="ml-2" size="sm" variant="secondary" disabled={isInitializing} style={isInitializing ? { pointerEvents: 'none', opacity: 0.65, cursor: 'not-allowed' } : {}} onClick={() => this.fileUploadRef.current.setPause(!pause)}>
-											{percentProgress <= 0 ? 'Start' : (pause ? 'Resume' : 'Pause')}
-										</Button>
-									</div>
-								)}
-
-							</React.Fragment>
-						)}
-					</FileUploader>
-
+				{/* Subtitles */}
 				{flix && (
-					<div className="my-3">
+					<div className="flix-subtitles-section">
 						<FlixSubtitles
 							initial_subtitles={flix.subtitles}
 							media_base_url={this.flixUrl}
