@@ -129,7 +129,6 @@ const WatchTogetherRoom = () => {
 	const [notFound, setNotFound] = useState(false);
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [userCount, setUserCount] = useState(null);
-	const [detailsExpanded, setDetailsExpanded] = useState(true);
 	const [toast, setToast] = useState({ show: false, type: 'error', message: '' });
 
 	const handleCopyRoomUrl = async () => {
@@ -207,7 +206,7 @@ const WatchTogetherRoom = () => {
 				message={toast.message}
 				onClose={() => setToast({ show: false, type: 'error', message: '' })}
 			/>
-			<div style={{ overflow: 'hidden', maxHeight: detailsExpanded ? '2500px' : '0', opacity: detailsExpanded ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.25s ease', pointerEvents: detailsExpanded ? 'auto' : 'none' }}>
+			<DetailsToggleButton>
 				<TMDBDetails
 					poster_path={tmdb.poster_path}
 					title={tmdb.title}
@@ -219,8 +218,7 @@ const WatchTogetherRoom = () => {
 					credits={tmdb.credits}
 					video_path={flix?.video_path_exists ? flix.video_path : null}
 				/>
-			</div>
-			<DetailsToggleButton expanded={detailsExpanded} onToggle={() => setDetailsExpanded(v => !v)} />
+			</DetailsToggleButton>
 			<WatchTogetherControls
 				room={room}
 				userCount={userCount}

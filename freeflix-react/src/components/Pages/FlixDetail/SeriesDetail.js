@@ -19,7 +19,6 @@ const SeriesDetail = () => {
 	const [selectedSeason, setSelectedSeason] = useState(null);
 	const [selectedEpisode, setSelectedEpisode] = useState(null);
 	const [notFound, setNotFound] = useState(false);
-	const [detailsExpanded, setDetailsExpanded] = useState(true);
 	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
 	const { flix, load: loadFlix, isLoading: isFlixLoading } = useFlix();
 
@@ -40,8 +39,7 @@ const SeriesDetail = () => {
 			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
 
 			{(!isTMDBLoading && tmdb) && (
-			<>
-				<div style={{ overflow: 'hidden', maxHeight: detailsExpanded ? '2500px' : '0', opacity: detailsExpanded ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.25s ease', pointerEvents: detailsExpanded ? 'auto' : 'none' }}>
+				<DetailsToggleButton>
 					<TMDBDetails
 						poster_path={tmdb.poster_path}
 						title={tmdb.name}
@@ -53,9 +51,7 @@ const SeriesDetail = () => {
 						credits={tmdb.credits}
 						video_path={flix?.video_path_exists ? flix.video_path : null}
 					/>
-				</div>
-				<DetailsToggleButton expanded={detailsExpanded} onToggle={() => setDetailsExpanded(v => !v)} />
-			</>
+				</DetailsToggleButton>
 			)}
 
 			<div>

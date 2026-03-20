@@ -21,7 +21,6 @@ const MovieDetail = () => {
 	const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
 	const [showForm, setShowForm] = useState(false);
 	const [notFound, setNotFound] = useState(false);
-	const [detailsExpanded, setDetailsExpanded] = useState(true);
 	const { isAuthenticated, user } = useAuth();
 	const canCreateFlix = Boolean(user?.can_create_flix);
 	const { tmdb, load: loadTMDB, isLoading: isTMDBLoading } = useTMDB();
@@ -106,8 +105,7 @@ const MovieDetail = () => {
 			{(isTMDBLoading || isFlixLoading) && <TMDBDetailsSkeleton />}
 
 			{(!isTMDBLoading && tmdb) && (
-			<>
-				<div style={{ overflow: 'hidden', maxHeight: detailsExpanded ? '2500px' : '0', opacity: detailsExpanded ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.25s ease', pointerEvents: detailsExpanded ? 'auto' : 'none' }}>
+				<DetailsToggleButton>
 					<TMDBDetails
 						poster_path={tmdb.poster_path}
 						title={tmdb.title}
@@ -119,9 +117,7 @@ const MovieDetail = () => {
 						credits={tmdb.credits}
 						video_path={flix?.video_path_exists ? flix.video_path : null}
 					/>
-				</div>
-				<DetailsToggleButton expanded={detailsExpanded} onToggle={() => setDetailsExpanded(v => !v)} />
-			</>
+				</DetailsToggleButton>
 			)}
 
 			{isAuthenticated && flix?.video_path_exists && (
