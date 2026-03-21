@@ -331,6 +331,23 @@ footer .freeflix-ft {
   color: white;
   font-size: 0.5rem;
 }
+
+.movie-card-video-badge {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  color: #f2f2f2;
+  font-size: 0.55rem;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 4px;
+  pointer-events: none;
+}
 /*Movie Card end*/
 
 /*Home*/
