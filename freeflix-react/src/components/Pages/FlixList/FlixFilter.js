@@ -8,9 +8,9 @@ import ListFlix from './ListFlix.js';
 import FlixPagination from './FlixPagination.js';
 
 const VIDEO_STATUS_OPTIONS = [
-	{ label: 'All',         value: 'all' },
-	{ label: 'Has video',   value: 1     },
-	{ label: 'Empty video', value: 0     },
+	{ label: 'All',            value: 'all' },
+    { label: 'Media Attached', value: 1     },
+    { label: 'No Media',       value: 0     },
 ];
 
 const ORDERING_OPTIONS = [
@@ -145,7 +145,7 @@ const FlixFilter = () => {
 		<div className="filterflix h-100 d-flex mt-3">
 			<div className="container-fluid px-0">
 				<div className="row justify-content-center">
-					<div className="col-12 col-sm-10 col-md-8 col-lg-6">
+					<div className="col-12 col-sm-10 col-md-8 col-lg-6 d-flex justify-content-center align-items-center">
 						<form className="search-bar d-flex" onSubmit={onSearchSubmit}>
 							<input
 								className="w-100"
