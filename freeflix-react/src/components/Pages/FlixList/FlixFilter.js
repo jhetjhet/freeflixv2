@@ -7,7 +7,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 import ListFlix from './ListFlix.js';
 import FlixPagination from './FlixPagination.js';
 
-const ORDERING_OPTIONS = ['latest', 'oldest', 'title', 'year'];
+const ORDERING_OPTIONS = [
+	{ label: 'Newest Upload',  value: '-date_upload'  },
+	{ label: 'Oldest Upload',  value: 'date_upload'   },
+	{ label: 'Newest Release', value: '-date_release' },
+	{ label: 'Oldest Release', value: 'date_release'  },
+];
 
 const parsePage = (rawPage) => {
 	const parsedPage = Number.parseInt(rawPage, 10);
@@ -31,9 +36,9 @@ const FlixFilter = () => {
 		? queryParams.get('type')
 		: 'all';
 	const selectedGenre = queryParams.get('genre') || 'all';
-	const selectedOrdering = ORDERING_OPTIONS.includes(queryParams.get('ordering'))
+	const selectedOrdering = ORDERING_OPTIONS.find(o => o.value === queryParams.get('ordering'))
 		? queryParams.get('ordering')
-		: 'latest';
+		: ORDERING_OPTIONS[0].value;
 	const searchFilter = queryParams.get('search') || '';
 	const currentPage = parsePage(queryParams.get('page'));
 
@@ -169,11 +174,11 @@ const FlixFilter = () => {
 					<span className="md-text mr-1">Order By </span>
 					<Dropdown onSelect={onOrderSelect} className="mr-2">
 						<Dropdown.Toggle variant="flix" size="sm">
-							{selectedOrdering}
-						</Dropdown.Toggle>
-						<Dropdown.Menu>
-							{ORDERING_OPTIONS.map(item => (
-								<Dropdown.Item key={item} eventKey={item}>{item}</Dropdown.Item>
+						{ORDERING_OPTIONS.find(o => o.value === selectedOrdering)?.label ?? selectedOrdering}
+					</Dropdown.Toggle>
+					<Dropdown.Menu>
+						{ORDERING_OPTIONS.map(item => (
+							<Dropdown.Item key={item.value} eventKey={item.value}>{item.label}</Dropdown.Item>
 							))}
 						</Dropdown.Menu>
 					</Dropdown>

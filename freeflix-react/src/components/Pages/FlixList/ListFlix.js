@@ -53,21 +53,7 @@ const ListFlix = ({
 		setIsLoading(true);
 
 		var conf = { params: {} };
-		var ordering;
-		switch (orderingFilter) {
-			case 'latest':
-				ordering = '-date_upload';
-				break;
-			case 'oldest':
-				ordering = 'date_upload';
-				break;
-			case 'year':
-				ordering = 'date_release';
-				break;
-			default:
-				ordering = orderingFilter;
-				break;
-		}
+		const ordering = orderingFilter;
 
 		if (searchFilter) {
 			conf.params.search = searchFilter;
