@@ -115,12 +115,12 @@ const MovieDetail = () => {
 						genres={tmdb.genres}
 						images_backdrops={tmdb?.images?.backdrops ?? []}
 						credits={tmdb.credits}
-						video_path={flix?.video_path_exists ? flix.video_path : null}
+						video_path={flix?.has_video ? flix.video_path : null}
 					/>
 				</DetailsToggleButton>
 			)}
 
-			{isAuthenticated && flix?.video_path_exists && (
+			{isAuthenticated && flix?.has_video && (
 				<div className="container mt-3">
 					<div className="d-flex flex-column flex-md-row align-items-md-center">
 						<Button disabled={inviteLoading} onClick={createInviteLink} variant="flix" size="sm">
@@ -141,7 +141,7 @@ const MovieDetail = () => {
 
 			<div className="my-4" />
 
-			{(flix?.video_path_exists) && (
+			{(flix?.has_video) && (
 				<MoviePlayer id={flix?.video_path} video_url={flix.video_url} subtitles={flix?.subtitles ?? []} />
 			)}
 		</div>

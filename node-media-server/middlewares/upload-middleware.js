@@ -303,7 +303,7 @@ const patchDjangoExtension = async (fields, extension) => {
     const requestUrl = getDjangoApiUrl(fields);
     await axios.patch(
         requestUrl,
-        { extension },
+        { extension, has_video: true },
         {
             headers: {
                 'X-Node-Service-Token': process.env.NODE_SERVICE_TOKEN || '',

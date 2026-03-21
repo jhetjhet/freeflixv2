@@ -216,7 +216,7 @@ const WatchTogetherRoom = () => {
 					genres={tmdb.genres}
 					images_backdrops={tmdb?.images?.backdrops ?? []}
 					credits={tmdb.credits}
-					video_path={flix?.video_path_exists ? flix.video_path : null}
+					video_path={flix?.has_video ? flix.video_path : null}
 				/>
 			</DetailsToggleButton>
 			<WatchTogetherControls
@@ -227,7 +227,7 @@ const WatchTogetherRoom = () => {
 
 			<div className="my-4" />
 
-			{flix?.video_path_exists ? (
+			{flix?.has_video ? (
 				<WatchTogetherPlayer
 					roomId={room.roomId}
 					id={flix?.video_path}

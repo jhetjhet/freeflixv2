@@ -27,7 +27,7 @@ from rest_framework.filters import (
     SearchFilter,
     OrderingFilter,
 )
-from .filter import SequenceSearchFilter
+from .filter import SequenceSearchFilter, VideoExistsFilter
 from .permissions import FlixModelPermission, NodeServicePermission
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -103,6 +103,7 @@ class MixFlixList(ListAPIView):
     permission_models = [Movie, Series]
     filter_backends = [
         SequenceSearchFilter,
+        VideoExistsFilter,
         OrderingFilter,
     ]
     search_fields = [
@@ -151,6 +152,7 @@ class MovieList(ListCreateAPIView):
     permission_model = Movie
     filter_backends = [
         SearchFilter,
+        VideoExistsFilter,
         OrderingFilter,
     ]
     search_fields = [
@@ -187,6 +189,7 @@ class SeriesList(ListCreateAPIView):
     permission_model = Series
     filter_backends = [
         SearchFilter,
+        VideoExistsFilter,
         OrderingFilter,
     ]
     search_fields = [

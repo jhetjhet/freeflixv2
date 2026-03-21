@@ -7,6 +7,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 import ListFlix from './ListFlix.js';
 import FlixPagination from './FlixPagination.js';
 
+const VIDEO_STATUS_OPTIONS = [
+	{ label: 'All',         value: 'all' },
+	{ label: 'Has video',   value: 1     },
+	{ label: 'Empty video', value: 0     },
+];
+
 const ORDERING_OPTIONS = [
 	{ label: 'Newest Upload',  value: '-date_upload'  },
 	{ label: 'Oldest Upload',  value: 'date_upload'   },
@@ -41,6 +47,8 @@ const FlixFilter = () => {
 		: ORDERING_OPTIONS[0].value;
 	const searchFilter = queryParams.get('search') || '';
 	const currentPage = parsePage(queryParams.get('page'));
+	const rawVideoExists = queryParams.get('video_exists');
+	const videoExists = rawVideoExists === '1' ? 1 : rawVideoExists === '0' ? 0 : 'all';
 
 	const [searchVal, setSearchVal] = useState(searchFilter);
 	const [totalPages, setTotalPages] = useState(1);
@@ -102,6 +110,14 @@ const FlixFilter = () => {
 		});
 	}
 
+	const onVideoExistsSelect = (item) => {
+		const parsed = item === 'all' ? null : item;
+		updateQueryParams({
+			video_exists: parsed,
+			page: 1,
+		});
+	}
+
 	const onSearchSubmit = (event) => {
 		event.preventDefault();
 		updateQueryParams({
@@ -127,61 +143,82 @@ const FlixFilter = () => {
 
 	return (
 		<div className="filterflix h-100 d-flex mt-3">
-			<div className="w-100">
-				<div className="w-100 d-flex justify-content-center">
-					<form className="search-bar d-flex" onSubmit={onSearchSubmit}>
-						<input
-							className="w-100"
-							type="text"
-							placeholder="Search..."
-							value={searchVal}
-							onChange={(event) => { setSearchVal(event.target.value) }}
-						/>
-						<button type="submit" className="rounded">
-							<svg width="1.3em" height="1.3em" viewBox="0 0 16 16" className="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-								<path fillRule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
-								<path fillRule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
-							</svg>
-						</button>
-					</form>
+			<div className="container-fluid px-0">
+				<div className="row justify-content-center">
+					<div className="col-12 col-sm-10 col-md-8 col-lg-6">
+						<form className="search-bar d-flex" onSubmit={onSearchSubmit}>
+							<input
+								className="w-100"
+								type="text"
+								placeholder="Search..."
+								value={searchVal}
+								onChange={(event) => { setSearchVal(event.target.value) }}
+							/>
+							<button type="submit" className="rounded">
+								<svg width="1.3em" height="1.3em" viewBox="0 0 16 16" className="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+									<path fillRule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
+									<path fillRule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
+								</svg>
+							</button>
+						</form>
+					</div>
 				</div>
-				<div className="w-100 d-flex justify-content-center align-items-center mt-2">
-					<span className="md-text mr-1">Category </span>
-					<Dropdown onSelect={onFlixTypeSelect} className="mr-2">
-						<Dropdown.Toggle variant="flix" size="sm">
-							{selectedFlixType}
-						</Dropdown.Toggle>
-						<Dropdown.Menu>
-							{flixTypes.map(item => (
-								<Dropdown.Item key={item} eventKey={item}>{item}</Dropdown.Item>
-							))}
-						</Dropdown.Menu>
-					</Dropdown>
-					<span className="md-text mr-1">Genre </span>
-					<Dropdown onSelect={onGenreSelect} className="mr-2">
-						<Dropdown.Toggle variant="flix" size="sm">
-							{selectedGenre}
-						</Dropdown.Toggle>
-						<Dropdown.Menu style={{
-							maxHeight: '3em',
-							overFlowY: 'scroll',
-						}}>
-							{genres.map(item => (
-								<Dropdown.Item key={item} eventKey={item}>{item}</Dropdown.Item>
-							))}
-						</Dropdown.Menu>
-					</Dropdown>
-					<span className="md-text mr-1">Order By </span>
-					<Dropdown onSelect={onOrderSelect} className="mr-2">
-						<Dropdown.Toggle variant="flix" size="sm">
-						{ORDERING_OPTIONS.find(o => o.value === selectedOrdering)?.label ?? selectedOrdering}
-					</Dropdown.Toggle>
-					<Dropdown.Menu>
-						{ORDERING_OPTIONS.map(item => (
-							<Dropdown.Item key={item.value} eventKey={item.value}>{item.label}</Dropdown.Item>
-							))}
-						</Dropdown.Menu>
-					</Dropdown>
+				<div className="row justify-content-center align-items-center mt-2">
+					<div className="col-12 col-sm-6 col-md-auto d-flex align-items-center justify-content-center mb-2">
+						<span className="md-text mr-1">Category </span>
+						<Dropdown onSelect={onFlixTypeSelect}>
+							<Dropdown.Toggle variant="flix" size="sm">
+								{selectedFlixType}
+							</Dropdown.Toggle>
+							<Dropdown.Menu>
+								{flixTypes.map(item => (
+									<Dropdown.Item key={item} eventKey={item}>{item}</Dropdown.Item>
+								))}
+							</Dropdown.Menu>
+						</Dropdown>
+					</div>
+					<div className="col-12 col-sm-6 col-md-auto d-flex align-items-center justify-content-center mb-2">
+						<span className="md-text mr-1">Genre </span>
+						<Dropdown onSelect={onGenreSelect}>
+							<Dropdown.Toggle variant="flix" size="sm">
+								{selectedGenre}
+							</Dropdown.Toggle>
+							<Dropdown.Menu style={{
+								maxHeight: '3em',
+								overFlowY: 'scroll',
+							}}>
+								{genres.map(item => (
+									<Dropdown.Item key={item} eventKey={item}>{item}</Dropdown.Item>
+								))}
+							</Dropdown.Menu>
+						</Dropdown>
+					</div>
+					<div className="col-12 col-sm-6 col-md-auto d-flex align-items-center justify-content-center mb-2">
+						<span className="md-text mr-1">Order By </span>
+						<Dropdown onSelect={onOrderSelect}>
+							<Dropdown.Toggle variant="flix" size="sm">
+								{ORDERING_OPTIONS.find(o => o.value === selectedOrdering)?.label ?? selectedOrdering}
+							</Dropdown.Toggle>
+							<Dropdown.Menu>
+								{ORDERING_OPTIONS.map(item => (
+									<Dropdown.Item key={item.value} eventKey={item.value}>{item.label}</Dropdown.Item>
+								))}
+							</Dropdown.Menu>
+						</Dropdown>
+					</div>
+					<div className="col-12 col-sm-6 col-md-auto d-flex align-items-center justify-content-center mb-2">
+						<span className="md-text mr-1">Video </span>
+						<Dropdown onSelect={onVideoExistsSelect}>
+							<Dropdown.Toggle variant="flix" size="sm">
+								{VIDEO_STATUS_OPTIONS.find(o => o.value === videoExists)?.label ?? 'All'}
+							</Dropdown.Toggle>
+							<Dropdown.Menu>
+								{VIDEO_STATUS_OPTIONS.map(item => (
+									<Dropdown.Item key={String(item.value)} eventKey={String(item.value)}>{item.label}</Dropdown.Item>
+								))}
+							</Dropdown.Menu>
+						</Dropdown>
+					</div>
 				</div>
 				{flixPagination}
 				<div className={`${flixPagination ? '' : 'my-4'}`}>
@@ -191,6 +228,7 @@ const FlixFilter = () => {
 						flixTypeFilter={selectedFlixType}
 						genreFilter={selectedGenre}
 						orderingFilter={selectedOrdering}
+						videoExistsFilter={videoExists}
 						onResponse={(data) => {
 							setTotalPages(data?.total_pages ?? 1);
 						}}
