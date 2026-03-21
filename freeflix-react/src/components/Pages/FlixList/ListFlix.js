@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useMemo } from 'react';
 import axios from 'axios';
 import MovieCard from './MovieCard.js';
 import MovieCardSkeleton from './MovieCardSkeleton.js';
@@ -21,6 +21,33 @@ const ListFlix = ({
 }) => {
 	const [flixes, setFlixes] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const flixItems = useMemo(() => {
+		return flixes.map((flix) => {
+			const isSeries = Boolean(flix.seasons);
+			let videoCount = 0;
+			
+			if (isSeries) {
+				videoCount = flix.seasons.reduce((count, season) => {
+					return count + season.episodes.filter(episode => episode.video_path_exists).length;
+				}, 0);
+			}
+			else {
+				videoCount = flix.video_path_exists ? 1 : 0;
+			}
+
+			return {
+				flix_id: flix.id,
+				tmdb_id: flix.tmdb_id,
+				title: flix.title,
+				yearRelease: flix.date_release,
+				posterURL: `https://image.tmdb.org/t/p/w600_and_h900_bestv2/${flix.poster_path}`,
+				genres: flix.genres.map(genre => genre.name),
+				isSeries,
+				videoCount,
+			};
+		});
+	}, [flixes]);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -78,18 +105,10 @@ const ListFlix = ({
 							<MovieCardsPlaceholder count={12} />
 						)}
 
-						{!isLoading && flixes.length > 0 && (
-							flixes.map((flix) => (
-								<div key={flix.id} className="col-lg-3 col-md-4 col-sm-6 col-xs-12 d-flex justify-content-center align-items-center mb-2">
-									<MovieCard
-										flix_id={flix.id}
-										tmdb_id={flix.tmdb_id}
-										title={flix.title}
-										yearRelease={flix.date_release}
-										posterURL={`https://image.tmdb.org/t/p/w600_and_h900_bestv2/${flix.poster_path}`}
-										genres={flix.genres.map(genre => genre.name)}
-										isSeries={Boolean(flix.seasons)}
-									/>
+						{!isLoading && flixItems.length > 0 && (
+							flixItems.map((flix) => (
+								<div key={flix.flix_id} className="col-lg-3 col-md-4 col-sm-6 col-xs-12 d-flex justify-content-center align-items-center mb-2">
+									<MovieCard {...flix} />
 								</div>
 							))
 						)}
