@@ -195,7 +195,7 @@ class FlixForm extends React.Component {
 		const seasonNumber = tmdb?.season_number ?? null;
 		const episodeNumber = tmdb?.episode_number ?? null;
 
-		var vidName = flix?.video_path_exists ? flix?.video_url : '';
+		var vidName = flix?.has_video ? flix?.video_url : '';
 
 		if (video) vidName = video.name;
 

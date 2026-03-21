@@ -84,7 +84,6 @@ class MovieSerializer(serializers.ModelSerializer):
 	genres = GenreSerializer(many=True, required=False)
 	video_path = serializers.ReadOnlyField()
 	video_url = serializers.ReadOnlyField()
-	video_path_exists = serializers.ReadOnlyField()
 	subtitles = MovieSubtitleSerializer(many=True, read_only=True)
 
 	class Meta:
@@ -97,7 +96,7 @@ class MovieSerializer(serializers.ModelSerializer):
 			# 'video',
 			'video_path',
 			'video_url',
-			'video_path_exists',
+			'has_video',
 			'date_release',
 			'date_upload',
 			'genres',
@@ -184,7 +183,6 @@ class EpisodeSerializer(serializers.ModelSerializer):
 	subtitles = EpisodeSubtitleSerializer(many=True, read_only=True)
 	video_path = serializers.ReadOnlyField()
 	video_url = serializers.ReadOnlyField()
-	video_path_exists = serializers.ReadOnlyField()
 
 	class Meta:
 		model = Episode
@@ -195,7 +193,7 @@ class EpisodeSerializer(serializers.ModelSerializer):
 			'title', 
 			'video_path',
 			'video_url',
-			'video_path_exists',
+			'has_video',
 			'subtitles',
 			'extension',
 			# 'subtitle_url',

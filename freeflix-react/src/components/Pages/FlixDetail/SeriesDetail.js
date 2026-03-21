@@ -49,7 +49,7 @@ const SeriesDetail = () => {
 						genres={tmdb.genres}
 						images_backdrops={tmdb?.images?.backdrops ?? []}
 						credits={tmdb.credits}
-						video_path={flix?.video_path_exists ? flix.video_path : null}
+						video_path={flix?.has_video ? flix.video_path : null}
 					/>
 				</DetailsToggleButton>
 			)}
@@ -62,7 +62,7 @@ const SeriesDetail = () => {
 						</h3>
 					</div>
 				)}
-				{selectedEpisode?.video_path_exists && (
+				{selectedEpisode?.has_video && (
 					<MoviePlayer video_url={selectedEpisode?.video_url} subtitles={selectedEpisode?.subtitles ?? []} />
 				)}
 			</div>
@@ -79,7 +79,7 @@ const SeriesDetail = () => {
 								<Card.Body className="p-4 d-flex">
 									{season?.episodes?.map((episode) => (
 										<Button
-											disabled={!episode?.video_path_exists}
+											disabled={!episode?.has_video}
 											key={episode?.tmdb_id}
 											variant={selectedEpisode?.tmdb_id === episode?.tmdb_id ? "primary" : "secondary"}
 											className="mx-2 my-1 px-2"

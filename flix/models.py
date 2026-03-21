@@ -90,6 +90,7 @@ class Genre(TMDBModel):
 
 class Movie(FlixBaseModel, MediaBase):
 	extension = models.CharField(max_length=8, default='mp4')
+	has_video = models.BooleanField(null=True, default=None)
 
 	def video_path(self):
 		return f'movies/{self.tmdb_id}-{self.title.replace(" ", "-")}/video.{self.extension}'
@@ -111,6 +112,7 @@ class Episode(TMDBModel, MediaBase):
 	episode_number = models.IntegerField()
 	title = models.CharField(max_length=256)
 	extension = models.CharField(max_length=8, default='mp4')
+	has_video = models.BooleanField(null=True, default=None)
 
 	def video_path(self):
 		return f'series/{self.season.series.tmdb_id}-{self.season.series.title.replace(" ", "-")}/{self.season.title.replace(" ", "-")}/episode-{self.episode_number}-{self.title.replace(" ", "-")}/video.{self.extension}'

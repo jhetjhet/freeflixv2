@@ -17,6 +17,7 @@ const ListFlix = ({
 	flixTypeFilter,
 	genreFilter,
 	orderingFilter,
+	videoExistsFilter = 'all',
 	onResponse = () => { },
 }) => {
 	const [flixes, setFlixes] = useState([]);
@@ -29,11 +30,11 @@ const ListFlix = ({
 			
 			if (isSeries) {
 				videoCount = flix.seasons.reduce((count, season) => {
-					return count + season.episodes.filter(episode => episode.video_path_exists).length;
+					return count + season.episodes.filter(episode => episode.has_video).length;
 				}, 0);
 			}
 			else {
-				videoCount = flix.video_path_exists ? 1 : 0;
+				videoCount = flix.has_video ? 1 : 0;
 			}
 
 			return {
@@ -53,21 +54,7 @@ const ListFlix = ({
 		setIsLoading(true);
 
 		var conf = { params: {} };
-		var ordering;
-		switch (orderingFilter) {
-			case 'latest':
-				ordering = '-date_upload';
-				break;
-			case 'oldest':
-				ordering = 'date_upload';
-				break;
-			case 'year':
-				ordering = 'date_release';
-				break;
-			default:
-				ordering = orderingFilter;
-				break;
-		}
+		const ordering = orderingFilter;
 
 		if (searchFilter) {
 			conf.params.search = searchFilter;
@@ -79,6 +66,9 @@ const ListFlix = ({
 		if (genreFilter !== 'all')
 			conf.params.genre = genreFilter;
 
+		if (videoExistsFilter === 0 || videoExistsFilter === 1)
+			conf.params.video_exists = videoExistsFilter;
+
 		const url = `/api/${flixTypeFilter.toLowerCase()}/`;
 		axios.get(url, conf).then(resp => {
 			setFlixes(resp.data.results);
@@ -88,7 +78,7 @@ const ListFlix = ({
 		}).finally(() => {
 			setIsLoading(false);
 		});
-	}, [page, searchFilter, flixTypeFilter, genreFilter, orderingFilter]);
+	}, [page, searchFilter, flixTypeFilter, genreFilter, orderingFilter, videoExistsFilter]);
 
 	return (
 		<div className="h-100 d-flex justify-content-center">

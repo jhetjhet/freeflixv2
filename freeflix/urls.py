@@ -18,10 +18,6 @@ from django.urls import path, include, re_path
 
 from django.conf import settings
 from django.conf.urls.static import static
-
-from django.views.generic import TemplateView
-
-from flix.views import stream_video
 from feed.views import watch_together_share
 
 urlpatterns = [
@@ -29,10 +25,7 @@ urlpatterns = [
     path('api/', include('feed.urls')),
     path('auth/', include('client.urls')),
     path('share/watch-together/<str:room_id>/', watch_together_share, name='watch_together_share'),
-    re_path(r'^media/.*', stream_video),
-    # re_path(r'^.*', TemplateView.as_view(template_name='index.html')),
     path('admin/', admin.site.urls),
-    # path('', TemplateView.as_view(template_name='flix/index.html')),
 ]
 
 if settings.DEBUG:
