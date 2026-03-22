@@ -1,16 +1,14 @@
 import React from 'react';
 
-function FlixFooter(props){
+function FlixFooter() {
 	const date = new Date();
 	const year = date.getFullYear();
-	const day = date.getDate();
-	const month = date.getMonth();
 
 	return (
 		<footer className="mt-auto">
 			<div className="mx-auto my-3">
 				<p className="my-auto text-light">
-					<span className="freeflix-ft text-flix">FreeFlix</span>{' '}©{' '}
+					<span className="freeflix-ft text-flix">FooFlix</span>{' '}©{' '}
 					<span>{year}</span>
 				</p>
 			</div>
