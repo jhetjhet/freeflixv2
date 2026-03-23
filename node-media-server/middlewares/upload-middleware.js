@@ -17,6 +17,21 @@ const EMPTY_BUFFER = Buffer.alloc(0);
 
 const ALLOWED_EXTENSIONS = ['mp4', 'mkv', 'webm', 'avi', 'mov', 'flv', 'ogv'];
 
+const EXTENSION_MIME_MAP = {
+    mp4:  'video/mp4',
+    mkv:  'video/x-matroska',
+    webm: 'video/webm',
+    avi:  'video/x-msvideo',
+    mov:  'video/quicktime',
+    flv:  'video/x-flv',
+    ogv:  'video/ogg',
+};
+
+const getMimeTypeFromExtension = (filename) => {
+    const ext = Path.extname(filename || '').replace('.', '').toLowerCase();
+    return EXTENSION_MIME_MAP[ext] || 'application/octet-stream';
+};
+
 // Validates a value is a safe positive integer string to prevent path injection in URLs
 const validatePositiveInteger = (value, name) => {
     const str = String(value ?? '').trim();
@@ -409,7 +424,7 @@ UploadMiddleware.prototype.processChunkUpload = async function (req, res, next, 
             clientUploadId: req.params.chunkid,
             totalSize: req.contentRange.total,
             filename: req.fields.filename,
-            contentType: req.fileMimeType,
+            contentType: getMimeTypeFromExtension(req.fields.filename),
         });
 
         if (upload.status === 'completed') {
