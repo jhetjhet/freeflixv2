@@ -300,7 +300,9 @@ const getDjangoApiUrl = (fields) => {
 
 const getFinalObjectKey = async (fields, extension) => {
     const requestUrl = getDjangoApiUrl(fields);
-    const response = await axios.get(requestUrl);
+    const response = await axios.get(requestUrl, {
+        headers: { 'X-Node-Service-Token': process.env.NODE_SERVICE_TOKEN || '' },
+    });
     const flixPath = normalizeObjectKey(response.data.video_path);
 
     if (!flixPath) {
@@ -687,7 +689,8 @@ UploadMiddleware.prototype.finalize = function () {
                 return res.json({ uploaded: upload.totalSize });
             } catch (error) {
                 console.error('Finalize error:', error);
-                res.status(error.status || 500).send(error.message || 'Finalize failed.');
+                const isUpstream = !!error.response; // axios error from Django/S3
+                res.status(isUpstream ? 502 : (error.status || 500)).send(error.message || 'Finalize failed.');
             }
         },
     ];
