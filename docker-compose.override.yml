@@ -27,6 +27,8 @@ services:
           initial_sync: true
           target: /app
     command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
 
   node_backend:
     environment:
@@ -40,6 +42,8 @@ services:
         - action: rebuild
           path: ./node-media-server/package.json
     command: npm start
+    ports:
+        - "8080:8080"
 
   web-server:
     volumes:
