@@ -2,6 +2,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 class FlixPagination(PageNumberPagination):
+	page_size_query_param = 'page_size'
+	max_page_size = 100  
 
 	def get_paginated_response(self, data):
 		has_next = self.page.has_next()
