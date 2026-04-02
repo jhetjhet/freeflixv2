@@ -85,6 +85,7 @@ class MovieSerializer(serializers.ModelSerializer):
 	video_path = serializers.ReadOnlyField()
 	video_url = serializers.ReadOnlyField()
 	subtitles = MovieSubtitleSerializer(many=True, read_only=True)
+	progress = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Movie
@@ -103,6 +104,7 @@ class MovieSerializer(serializers.ModelSerializer):
 			'poster_path',
 			'subtitles',
 			'extension',
+			'progress',
 		]
 		read_only_fields = [
 			'id',
@@ -112,6 +114,20 @@ class MovieSerializer(serializers.ModelSerializer):
 
 	def get_video_url(self, obj):
 		return obj.video_url()
+
+	def get_progress(self, obj):
+		request = self.context.get('request')
+		if not request or not request.user.is_authenticated:
+			return None
+		from django.contrib.contenttypes.models import ContentType
+		from progress.models import UserMediaProgress
+		from progress.serializers import ProgressEmbedSerializer
+		ct = ContentType.objects.get_for_model(obj)
+		try:
+			p = UserMediaProgress.objects.get(user=request.user, content_type=ct, object_id=str(obj.pk))
+			return ProgressEmbedSerializer(p).data
+		except UserMediaProgress.DoesNotExist:
+			return None
 
 	def create(self, validated_data):
 		genres = validated_data.pop('genres', [])
@@ -183,10 +199,12 @@ class EpisodeSerializer(serializers.ModelSerializer):
 	subtitles = EpisodeSubtitleSerializer(many=True, read_only=True)
 	video_path = serializers.ReadOnlyField()
 	video_url = serializers.ReadOnlyField()
+	progress = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Episode
 		fields = [
+			'id',
 			'tmdb_id',
 			'season',
 			'episode_number',
@@ -196,6 +214,7 @@ class EpisodeSerializer(serializers.ModelSerializer):
 			'has_video',
 			'subtitles',
 			'extension',
+			'progress',
 			# 'subtitle_url',
 			# 'video', 
 			# 'video_url',
@@ -207,6 +226,20 @@ class EpisodeSerializer(serializers.ModelSerializer):
 
 	def get_video_url(self, obj):
 		return obj.video_url()
+
+	def get_progress(self, obj):
+		request = self.context.get('request')
+		if not request or not request.user.is_authenticated:
+			return None
+		from django.contrib.contenttypes.models import ContentType
+		from progress.models import UserMediaProgress
+		from progress.serializers import ProgressEmbedSerializer
+		ct = ContentType.objects.get_for_model(obj)
+		try:
+			p = UserMediaProgress.objects.get(user=request.user, content_type=ct, object_id=str(obj.pk))
+			return ProgressEmbedSerializer(p).data
+		except UserMediaProgress.DoesNotExist:
+			return None
 
 	def validate_title(self, value):
 		# Sanitize or transform unsafe strings here
