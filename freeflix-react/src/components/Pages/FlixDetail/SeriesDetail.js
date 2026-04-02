@@ -63,7 +63,7 @@ const SeriesDetail = () => {
 					</div>
 				)}
 				{selectedEpisode?.has_video && (
-					<MoviePlayer video_url={selectedEpisode?.video_url} subtitles={selectedEpisode?.subtitles ?? []} />
+					<MoviePlayer video_url={selectedEpisode?.video_url} subtitles={selectedEpisode?.subtitles ?? []} mediaType="episode" mediaId={selectedEpisode?.id} />
 				)}
 			</div>
 			{flix && (

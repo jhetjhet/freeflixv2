@@ -2,17 +2,18 @@ import React from 'react';
 import { FlixPlayerHost } from './watchtogether/FlixPlayerHost';
 import { FlixPlayerClient } from './watchtogether/FlixPlayerClient';
 import { VideoPlayerContainer } from './watchtogether/VideoPlayerContainer';
-import VideoPlayer from './VideoPlayer';
+import VideoPlayerProgressWrapper from './VideoPlayerProgressWrapper';
 
-export const MoviePlayer = ({ id = null, video_url = "", subtitles = [] }) => {
+export const MoviePlayer = ({ video_url = "", subtitles = [], mediaType = 'movie', mediaId = null }) => {
 	return (
 		<VideoPlayerContainer>
 			{video_url ? (
 				<div style={{ width: '100%' }}>
-					<VideoPlayer
-						id={id}
+					<VideoPlayerProgressWrapper
 						video_url={`${process.env.REACT_APP_MEDIA_URL}${video_url}`}
 						subtitles={subtitles}
+						mediaType={mediaType}
+						mediaId={mediaId}
 					/>
 				</div>
 			) : (

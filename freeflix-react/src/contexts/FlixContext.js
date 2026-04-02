@@ -20,7 +20,9 @@ export const FlixProvider = ({ children }) => {
     const load = useCallback(async (id, type, onResult) => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`/api/${type}/${id}/`);
+            const token = localStorage.getItem('access_token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const response = await axios.get(`/api/${type}/${id}/`, { headers });
             setFlix(response.data);
             if (onResult) onResult({ success: true, data: response.data });
         } catch (error) {
