@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'client.apps.ClientConfig',
     'flix.apps.FlixConfig',
     'feed.apps.FeedConfig',
+    'progress.apps.ProgressConfig',
 ]
 
 MIDDLEWARE = [

@@ -23,6 +23,7 @@ from feed.views import watch_together_share
 urlpatterns = [
 	path('api/', include('flix.urls')),
     path('api/', include('feed.urls')),
+    path('api/', include('progress.urls')),
     path('auth/', include('client.urls')),
     path('share/watch-together/<str:room_id>/', watch_together_share, name='watch_together_share'),
     path('admin/', admin.site.urls),

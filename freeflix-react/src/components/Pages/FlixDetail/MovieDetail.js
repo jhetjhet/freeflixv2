@@ -142,7 +142,7 @@ const MovieDetail = () => {
 			<div className="my-4" />
 
 			{(flix?.has_video) && (
-				<MoviePlayer id={flix?.video_path} video_url={flix.video_url} subtitles={flix?.subtitles ?? []} />
+				<MoviePlayer video_url={flix.video_url} subtitles={flix?.subtitles ?? []} mediaId={flix?.id} />
 			)}
 		</div>
 	);
