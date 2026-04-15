@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import AccessToken
 from .models import Flixer
 
 class FlixerSerializer(serializers.ModelSerializer):
@@ -40,3 +42,20 @@ class FlixerCreateSerializer(UserCreateSerializer):
 			'password',
 		]
 		extra_kwargs = {'password': {'write_only': True}}
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+	def validate(self, attrs):
+		data = super().validate(attrs)
+		refresh = self.get_token(self.user)
+		data['access_expiration'] = refresh.access_token.payload['exp']
+		data['refresh_expiration'] = refresh.payload['exp']
+		return data
+
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
+	def validate(self, attrs):
+		data = super().validate(attrs)
+		access = AccessToken(data['access'])
+		data['access_expiration'] = access.payload['exp']
+		return data
