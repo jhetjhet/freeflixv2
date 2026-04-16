@@ -178,6 +178,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'TOKEN_OBTAIN_SERIALIZER': 'client.serializers.CustomTokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'client.serializers.CustomTokenRefreshSerializer',
 }
 
 # S3 Storage Configuration
