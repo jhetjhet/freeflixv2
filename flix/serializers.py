@@ -86,6 +86,7 @@ class MovieSerializer(serializers.ModelSerializer):
 	video_url = serializers.ReadOnlyField()
 	subtitles = MovieSubtitleSerializer(many=True, read_only=True)
 	progress = serializers.SerializerMethodField()
+	type = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Movie
@@ -105,6 +106,7 @@ class MovieSerializer(serializers.ModelSerializer):
 			'subtitles',
 			'extension',
 			'progress',
+			'type',
 		]
 		read_only_fields = [
 			'id',
@@ -114,6 +116,9 @@ class MovieSerializer(serializers.ModelSerializer):
 
 	def get_video_url(self, obj):
 		return obj.video_url()
+
+	def get_type(self, obj):
+		return 'movie'
 
 	def get_progress(self, obj):
 		request = self.context.get('request')
@@ -283,6 +288,7 @@ class SeasonSerializer(serializers.ModelSerializer):
 class SeriesSerializer(serializers.ModelSerializer):
 	seasons = SeasonSerializer(many=True, read_only=True)
 	genres = GenreSerializer(many=True, read_only=False)
+	type = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Series
@@ -295,11 +301,15 @@ class SeriesSerializer(serializers.ModelSerializer):
 			'seasons',
 			'genres',
 			'poster_path',
+			'type',
 		]
 		read_only_fields = [
 			'id',
 			'date_upload',
 		]
+
+	def get_type(self, obj):
+		return 'series'
 
 	def validate(self, data):
 
