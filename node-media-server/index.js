@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const morgan = require('morgan');
 const { Server } = require('socket.io');
 const { Upload, UploadPart } = require('./database/models');
 const uploadRouter = require('./routes/upload');
@@ -19,6 +20,7 @@ const io = new Server(server, {
     },
 });
 
+app.use(morgan('dev'));
 app.use(cors({origin: '*'}));
 app.use(express.json());
 
