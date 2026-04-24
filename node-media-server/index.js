@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const { Upload, UploadPart } = require('./database/models');
 const uploadRouter = require('./routes/upload');
 const { createWatchTogetherRouter, registerWatchTogetherHandlers } = require('./watch-together');
+const { wtcHandlers } = require('./wtc-handlers');
 const axios = require('axios');
 
 const app = express();
@@ -17,6 +18,7 @@ const io = new Server(server, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST'],
+        credentials: true,
     },
 });
 
@@ -45,7 +47,10 @@ app.get('/flix-test/:tmdb_id', async (req, res) => {
 app.use('/upload', uploadRouter);
 app.use('/watch-together', createWatchTogetherRouter());
 
+const wtcIO = io.of('/wtc');
+
 registerWatchTogetherHandlers(io);
+wtcHandlers(wtcIO);
 
 const startServer = async () => {
     // Both tables are ephemeral: upload_parts holds in-flight S3 part ETags,

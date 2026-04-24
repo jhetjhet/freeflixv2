@@ -32,6 +32,12 @@ class FlixerSerializer(serializers.ModelSerializer):
 			obj.has_perm('flix.add_episodesubtitle'),
 		])
 
+class FlixerPublicSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Flixer
+		fields = ['id', 'username', 'email']
+
+
 class FlixerCreateSerializer(UserCreateSerializer):
 	class Meta(UserCreateSerializer.Meta):
 		model = Flixer

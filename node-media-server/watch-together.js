@@ -1,8 +1,9 @@
 const express = require('express');
 const axios = require('axios');
 const { redis, roomKey } = require('./redis-client');
+const { verifyToken, fetchMovie } = require('./services/flix-api');
+const { getRoom, saveRoom, deleteRoom } = require('./services/wt-redis');
 
-const ROOM_TTL_SECONDS = 60 * 60 * 24;
 const HOST_RECONNECT_GRACE_MS = Number(process.env.WATCH_TOGETHER_HOST_RECONNECT_GRACE_MS || 15000);
 // Timeout handles are process-local and cannot be serialized to Redis.
 // This is acceptable for single-instance operation. For full multi-instance
@@ -11,61 +12,12 @@ const reconnectTimeouts = new Map();
 
 const createRoomId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-const getDjangoBaseUrl = () => process.env.DJANGO_URL_PATH || 'http://backend:8000';
-
-const verifyToken = async (token) => {
-	if (!token) {
-		return null;
-	}
-
-	try {
-		const response = await axios.get(`${getDjangoBaseUrl()}/auth/users/me/`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-			timeout: 5000,
-		});
-
-		return response.data;
-	} catch (error) {
-		return null;
-	}
-};
-
 const getBearerToken = (value = '') => {
 	if (!value.startsWith('Bearer ')) {
 		return null;
 	}
 
 	return value.slice(7);
-};
-
-const ensureMovieExists = async (movieId) => {
-	await axios.get(`${getDjangoBaseUrl()}/api/movie/${movieId}/`, {
-		timeout: 5000,
-	});
-};
-
-const getRoom = async (roomId) => {
-	const roomData = await redis.get(roomKey(roomId));
-	if (!roomData) {
-		return null;
-	}
-
-	try {
-		return JSON.parse(roomData);
-	} catch (error) {
-		await redis.del(roomKey(roomId));
-		return null;
-	}
-};
-
-const saveRoom = async (room) => {
-	await redis.set(roomKey(room.roomId), JSON.stringify(room), 'EX', ROOM_TTL_SECONDS);
-};
-
-const deleteRoom = async (roomId) => {
-	await redis.del(roomKey(roomId));
 };
 
 const clearHostReconnectTimeout = (roomId) => {
@@ -111,7 +63,7 @@ const createWatchTogetherRouter = () => {
 		}
 
 		try {
-			await ensureMovieExists(req.params.movieId);
+			const resp = await fetchMovie(req.params.movieId);
 		} catch (error) {
 			return res.status(404).json({ detail: 'Not found.' });
 		}
