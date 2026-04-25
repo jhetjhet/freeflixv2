@@ -4,7 +4,7 @@ const { redis, roomKey } = require('./redis-client');
 const { verifyToken } = require('./services/flix-api');
 const { getRoom, saveRoom, deleteRoom, addUserToRoom, countUsersInRoom, removeUserFromRoom, getUsersWithMetadata } = require('./services/wt-redis');
 
-const HOST_RECONNECT_GRACE_MS = Number(process.env.WATCH_TOGETHER_HOST_RECONNECT_GRACE_MS || 15000);
+const HOST_RECONNECT_GRACE_MS = Number(process.env.WATCH_TOGETHER_HOST_RECONNECT_GRACE_MS || (1000 * 120));
 // Timeout handles are process-local and cannot be serialized to Redis.
 // This is acceptable for single-instance operation. For full multi-instance
 // support, move reconnect grace handling to a distributed scheduler.
@@ -79,8 +79,6 @@ const wtcHandlers = (io) => {
 			socket.join(roomId);
 			socket.data.roomId = roomId;
 			socket.data.isHost = socketIsHost;
-
-			console.log(room.hostUserId, "===", user.id, "=", room.hostUserId === user.id)
 
 			if (socket.data.isHost) {
 				clearHostReconnectTimeout(roomId);
@@ -196,6 +194,7 @@ const wtcHandlers = (io) => {
 
 			const syncPayload = buildSyncPayload(payload.roomId, room.currentTime, room.isPlaying, {
 				serverTime: payload.serverTime,
+				isRequest: Boolean(payload.isRequest),
 			});
 
 			if (payload.targetSocketId) {
@@ -220,11 +219,17 @@ const wtcHandlers = (io) => {
 
 			await removeUserFromRoom(roomId, socket.user.id);
 
-			io.to(roomId).emit('user_left', { 
+			const userLeftPayload = { 
 				userId: socket.user.id, 
 				leftAt: Date.now(),
 				isHost: socket.data.isHost,
-			});
+			};
+
+			if (socket.data.isHost) {
+				userLeftPayload.reconnectGraceMs = HOST_RECONNECT_GRACE_MS;
+			}
+
+			io.to(roomId).emit('user_left', userLeftPayload);
 
 			if (room.hostSocketId === socket.id) {
 				room.hostSocketId = null;
@@ -232,11 +237,6 @@ const wtcHandlers = (io) => {
 				room.updatedAt = Date.now();
 
 				await saveRoom(room);
-
-				io.to(roomId).emit('host_disconnected', {
-					roomId,
-					reconnectGraceMs: HOST_RECONNECT_GRACE_MS,
-				});
 
 				clearHostReconnectTimeout(roomId);
 
