@@ -3,11 +3,13 @@ services:
   next-app:
     image: snits/fooflix-next:latest
     environment:
-      - NEXT_PUBLIC_TMDB_API_BASE=${TMDB_BASE_URL}
-      - NEXT_PUBLIC_TMDB_API_KEY=${TMDB_API_KEY}
-      - NEXT_PUBLIC_NODE_ENDPOINT=${NEXT_PUBLIC_NODE_ENDPOINT}
-      - DJANGO_API_URL=${DJANGO_API_URL}
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - TMDB_API_BASE=${TMDB_BASE_URL}
+      - NODE_SOCKET_URL=${NODE_SOCKET_URL}
+      - NODE_SOCKET_PATH=${NODE_SOCKET_PATH}
+      - NODE_EXT_API_URL=${NODE_EXT_API_URL}
       - NODE_API_URL=${NODE_API_URL}
+      - DJANGO_API_URL=${DJANGO_API_URL}
     depends_on:
       - backend
       - node_backend
