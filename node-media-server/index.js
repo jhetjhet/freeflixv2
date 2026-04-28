@@ -14,16 +14,25 @@ const axios = require('axios');
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 8080;
+
+const corsOrigin =
+  process.env.NODE_ENV === 'production'
+    ? (process.env.CORS_ORIGIN_PROD || '')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : ['http://localhost', 'http://localhost:3000'];
+
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: corsOrigin,
         methods: ['GET', 'POST'],
         credentials: true,
     },
 });
 
 app.use(morgan('dev'));
-app.use(cors({origin: '*'}));
+app.use(cors({origin: corsOrigin}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
