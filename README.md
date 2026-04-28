@@ -6,7 +6,7 @@ Share and stream movies with your friends and family.
 
 A full-featured media streaming platform built with modern web technologies. Upload movies and series in chunks, sync with TMDB for rich content details, and stream directly through a responsive interface. Watch movies simultaneously with friends via synchronized Watch Together rooms. Fully containerized with separate configurations for development and production.
 
-[Live Demo](https://freeflix.austin-full-stack-developer.tech/)
+[Live Demo](https://fooflix.austin-full-stack-developer.tech/)
 
 ## Features
 
