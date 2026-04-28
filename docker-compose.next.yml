@@ -3,6 +3,7 @@ services:
   next-app:
     image: snits/fooflix-next:latest
     environment:
+      - NODE_ENV=production
       - TMDB_API_KEY=${TMDB_API_KEY}
       - TMDB_API_BASE=${TMDB_BASE_URL}
       - NODE_SOCKET_URL=${NODE_SOCKET_URL}
@@ -10,6 +11,8 @@ services:
       - NODE_EXT_API_URL=${NODE_EXT_API_URL}
       - NODE_API_URL=${NODE_API_URL}
       - DJANGO_API_URL=${DJANGO_API_URL}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+      - COOKIE_MAX_AGE=${COOKIE_MAX_AGE}
     depends_on:
       - backend
       - node_backend

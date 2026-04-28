@@ -32,7 +32,7 @@ services:
 
   node_backend:
     environment:
-      - ENV_MODE=development
+      - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true 
     volumes:
       - ./node-media-server:/app

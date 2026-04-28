@@ -60,7 +60,7 @@ services:
       - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
       - PORT=8080
       - DJANGO_URL_PATH=http://web-server
-      - ENV_MODE=production
+      - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
       - AWS_REGION=${AWS_REGION}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
