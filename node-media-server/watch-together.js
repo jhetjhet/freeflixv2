@@ -89,11 +89,18 @@ const createWatchTogetherRouter = () => {
 
 	router.get('/:roomId', async (req, res) => {
 		const token = getBearerToken(req.headers.authorization || '');
-		const user = await verifyToken(token);
+		const isServiceToken = token === process.env.NODE_SERVICE_TOKEN;
 
-		if (!user) {
-			return res.status(404).json({ detail: 'Not found.' });
+		let user = null;
+
+		if (!isServiceToken) {
+			user = await verifyToken(token);
+
+			if (!user) {
+				return res.status(404).json({ detail: 'Not found.' });
+			}
 		}
+
 
 		const room = await getRoom(req.params.roomId);
 		if (!room) {
@@ -103,7 +110,7 @@ const createWatchTogetherRouter = () => {
 		return res.json({
 			roomId: room.roomId,
 			movieId: room.movieId,
-			isHost: room.hostUserId === user.id,
+			isHost: room.hostUserId === user?.id,
 			hasActiveHost: Boolean(room.hostSocketId),
 			currentTime: room.currentTime,
 			isPlaying: room.isPlaying,
