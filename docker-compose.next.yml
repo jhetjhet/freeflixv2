@@ -13,6 +13,7 @@ services:
       - DJANGO_API_URL=${DJANGO_API_URL}
       - COOKIE_DOMAIN=${COOKIE_DOMAIN}
       - COOKIE_MAX_AGE=${COOKIE_MAX_AGE}
+      - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
     depends_on:
       - backend
       - node_backend
