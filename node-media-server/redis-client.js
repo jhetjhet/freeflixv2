@@ -18,10 +18,14 @@ redis.on('error', (error) => {
 const roomKey = (roomId) => `wt:room:${roomId}`;
 const roomUserSetKey = (roomId) => `wt:room:${roomId}:users`;
 const roomUserMetaKey = (roomId, userId) => `wt:room:${roomId}:user:${userId}`;
+const roomHostKey = (roomId) => `wt:room:${roomId}:host`;
+const roomHostJobIdKey = (roomId) => `wt:room:${roomId}:jobId`;
 
 module.exports = {
 	redis,
 	roomKey,
 	roomUserSetKey,
 	roomUserMetaKey,
+	roomHostKey,
+	roomHostJobIdKey
 };

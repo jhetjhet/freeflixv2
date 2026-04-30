@@ -30,6 +30,15 @@ services:
     ports:
       - "8000:8000"
 
+  node_room_cleanup:
+    volumes:
+      - ./node-media-server:/app
+      - /app/node_modules
+    develop:
+      watch:
+        - action: rebuild
+          path: ./node-media-server/package.json
+
   node_backend:
     environment:
       - NODE_ENV=development
