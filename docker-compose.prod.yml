@@ -16,6 +16,9 @@ services:
     build: !reset null
     command: gunicorn freeflix.wsgi:application -b 0.0.0.0:8000
 
+  node_room_cleanup:
+    image: snits/freeflix-node-server:${FREEFLIX_NODE_VERSION:-latest}
+
   node_backend:
     image: snits/freeflix-node-server:${FREEFLIX_NODE_VERSION:-latest}
     build: !reset null

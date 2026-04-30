@@ -45,6 +45,15 @@ services:
       - mysql
     volumes:
       - ./staticfiles:/app/staticfiles
+  
+  node_room_cleanup:
+    build:
+      context: ./node-media-server
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    command: node room-cleanup-worker.js 
 
   node_backend:
     build:
@@ -54,8 +63,6 @@ services:
     depends_on:
       - backend
       - redis
-    volumes:
-      - ${MEDIA_ROOT}:/app/media
     environment:
       - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
       - PORT=8080

@@ -2,43 +2,10 @@ const express = require('express');
 const axios = require('axios');
 const { redis, roomKey } = require('./redis-client');
 const { verifyToken } = require('./services/flix-api');
-const { getRoom, saveRoom, deleteRoom, addUserToRoom, countUsersInRoom, removeUserFromRoom, getUsersWithMetadata } = require('./services/wt-redis');
-
-const HOST_RECONNECT_GRACE_MS = Number(process.env.WATCH_TOGETHER_HOST_RECONNECT_GRACE_MS || (1000 * 120));
-// Timeout handles are process-local and cannot be serialized to Redis.
-// This is acceptable for single-instance operation. For full multi-instance
-// support, move reconnect grace handling to a distributed scheduler.
-const reconnectTimeouts = new Map();
-
-const createRoomId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-
-function parseCookies(cookieHeader) {
-  const cookies = {};
-  if (!cookieHeader) return cookies;
-
-  cookieHeader.split(";").forEach((cookie) => {
-    const [key, value] = cookie.trim().split("=");
-    cookies[key] = decodeURIComponent(value);
-  });
-
-  return cookies;
-}
-
-const clearHostReconnectTimeout = (roomId) => {
-	const timeoutHandle = reconnectTimeouts.get(roomId);
-	if (timeoutHandle) {
-		clearTimeout(timeoutHandle);
-		reconnectTimeouts.delete(roomId);
-	}
-};
-
-const buildSyncPayload = (roomId, time, isPlaying, extra = {}) => ({
-	roomId,
-	time,
-	isPlaying,
-	serverTime: Number(extra.serverTime) || Date.now(),
-	...extra,
-});
+const { getRoom, saveRoom, addUserToRoom, countUsersInRoom, removeUserFromRoom, getUsersWithMetadata } = require('./services/wt-redis');
+const { onHostDisconnect, onHostReconnect } = require('./services/room-timer');
+const { HOST_RECONNECT_GRACE_MS } = require('./constants');
+const { parseCookies, buildSyncPayload } = require('./services/lib');
 
 const wtcHandlers = (io) => {
 	io.use(async (socket, next) => {
@@ -81,10 +48,10 @@ const wtcHandlers = (io) => {
 			socket.data.isHost = socketIsHost;
 
 			if (socket.data.isHost) {
-				clearHostReconnectTimeout(roomId);
 				room.hostSocketId = socket.id;
 				room.hostDisconnectedAt = null;
-				socket.to(roomId).emit('host_reconnected', { roomId });
+
+				await onHostReconnect(roomId);
 			}
 
 			room.updatedAt = Date.now();
@@ -238,20 +205,7 @@ const wtcHandlers = (io) => {
 
 				await saveRoom(room);
 
-				clearHostReconnectTimeout(roomId);
-
-				const timeoutHandle = setTimeout(async () => {
-					const currentRoom = await getRoom(roomId);
-					if (!currentRoom || currentRoom.hostSocketId) {
-						return;
-					}
-
-					await deleteRoom(roomId);
-					reconnectTimeouts.delete(roomId);
-					io.to(roomId).emit('room_closed', { roomId });
-				}, HOST_RECONNECT_GRACE_MS);
-
-				reconnectTimeouts.set(roomId, timeoutHandle);
+				await onHostDisconnect(roomId);
 			}
 		});
 	});

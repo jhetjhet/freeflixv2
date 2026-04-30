@@ -10,6 +10,7 @@ const uploadRouter = require('./routes/upload');
 const { createWatchTogetherRouter, registerWatchTogetherHandlers } = require('./watch-together');
 const { wtcHandlers } = require('./wtc-handlers');
 const axios = require('axios');
+const watchTogetherRouter = require('./routes/watch-together');
 
 const app = express();
 const server = http.createServer(app);
@@ -54,7 +55,7 @@ app.get('/flix-test/:tmdb_id', async (req, res) => {
 });
 
 app.use('/upload', uploadRouter);
-app.use('/watch-together', createWatchTogetherRouter());
+app.use('/watch-together', watchTogetherRouter);
 
 const wtcIO = io.of('/wtc');
 

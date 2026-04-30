@@ -66,15 +66,7 @@ const removeUserFromRoom = async (roomId, userId) => {
     pipeline.srem(setKey, userId);
     pipeline.del(metaKey);
 
-    const results = await pipeline.exec();
-
-    // check if room is empty AFTER removal
-    const size = await redis.scard(setKey);
-
-    if (size === 0) {
-        await redis.del(setKey);
-        await redis.del(roomKey(roomId));
-    }
+    await pipeline.exec();
 };
 
 const getUsersInRoom = async (roomId) => {
