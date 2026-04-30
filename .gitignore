@@ -48,3 +48,7 @@ Thumbs.db
 venv/
 ENV/
 env/
+
+# Shell scripts
+*.sh
+!start.sh

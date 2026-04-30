@@ -19,3 +19,6 @@ docker-compose.*.yml
 __pycache__
 *.pyc
 venv
+
+*.sh
+!start.sh
