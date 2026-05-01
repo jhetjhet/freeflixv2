@@ -24,7 +24,7 @@ services:
     depends_on:
       - backend
       - node_backend
-    
+    restart: unless-stopped
   backend:
     build: .
     restart: unless-stopped
@@ -49,6 +49,7 @@ services:
   node_room_cleanup:
     build:
       context: ./node-media-server
+    restart: unless-stopped
     environment:
       - REDIS_URL=redis://redis:6379
     depends_on:
@@ -58,11 +59,13 @@ services:
   node_backend:
     build:
       context: ./node-media-server
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
       - backend
       - redis
+      - node_room_cleanup
     environment:
       - NODE_SERVICE_TOKEN=${NODE_SERVICE_TOKEN}
       - PORT=8080

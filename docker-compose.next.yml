@@ -2,6 +2,7 @@
 services:
   next-app:
     image: snits/fooflix-next:latest
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
       - TMDB_API_KEY=${TMDB_API_KEY}
