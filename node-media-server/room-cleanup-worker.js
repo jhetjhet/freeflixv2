@@ -1,5 +1,6 @@
 const { Worker } = require('bullmq');
 const { redis, roomHostKey, roomKey, roomHostJobIdKey } = require('./redis-client');
+const { purgeRoom } = require('./services/wt-redis');
 
 const worker = new Worker(
   'room-cleanup',
@@ -12,9 +13,9 @@ const worker = new Worker(
     if (hostStatus === 'disconnected') {
       console.log(`Cleaning room ${roomId}`);
 
-      await redis.del(roomKey(roomId));
-      await redis.del(roomHostKey(roomId));
-      await redis.del(roomHostJobIdKey(roomId));
+      await purgeRoom(roomId);
+
+      console.log(`Room ${roomId} cleaned up`);
     } else {
       console.log(`Skipped cleanup, host reconnected`);
     }

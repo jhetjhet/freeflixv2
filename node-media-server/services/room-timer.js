@@ -19,12 +19,14 @@ async function onHostDisconnect(roomId) {
     }
   );
 
+  const disconnectScheduledAt = new Date(Date.now() + HOST_RECONNECT_GRACE_MS).toISOString();
+
   // store jobId so we can cancel later
   await redis.set(roomHostJobIdKey(roomId), job.id);
 }
 
 async function onHostReconnect(roomId) {
-  await redis.set(roomHostJobIdKey(roomId), 'connected');
+  await redis.set(roomHostKey(roomId), 'connected');
 
   const jobId = await redis.get(roomHostJobIdKey(roomId));
 

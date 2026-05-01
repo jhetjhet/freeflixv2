@@ -30,6 +30,8 @@ router.post('/create/:movieId', async (req, res) => {
     try {
         const resp = await fetchMovie(req.params.movieId);
     } catch (error) {
+        console.error('Error fetching movie details:', error);
+
         return res.status(404).json({ detail: 'Not found.' });
     }
 
@@ -59,13 +61,14 @@ router.get('/:roomId', async (req, res) => {
     let user = null;
 
     if (!isServiceToken) {
-        user = await verifyToken(token);
+        try {
+            user = await verifyToken(token);
+        } catch (error) {
+            console.error('Error verifying token:', error);
 
-        if (!user) {
-            return res.status(404).json({ detail: 'Not found.' });
+            return res.status(401).json({ detail: 'Unauthorized.' });
         }
     }
-
 
     const room = await getRoom(req.params.roomId);
     if (!room) {

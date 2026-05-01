@@ -103,6 +103,26 @@ const countUsersInRoom = async (roomId) => {
     return await redis.scard(roomUserSetKey(roomId));
 };
 
+const purgeRoom = async (roomId) => {
+    const roomKeyPattern = `${roomKey(roomId)}:*`;
+    
+    const pipeline = redis.pipeline();
+
+    const stream = redis.scanStream({
+        match: "wt:room:*",
+        count: 1000,
+    });
+
+    stream.on("data", (keys) => {
+        keys.forEach((key) => pipeline.del(key));
+    });
+
+    stream.on("end", async () => {
+        await pipeline.exec();
+        console.log("Done");
+    });
+};
+
 // -------------------- ROOM STATE --------------------
 
 const roomExists = async (roomId) => {
@@ -143,4 +163,5 @@ module.exports = {
     countUsersInRoom,
     roomExists,
     touchRoom,
+    purgeRoom,
 };
