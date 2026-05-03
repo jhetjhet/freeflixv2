@@ -11,6 +11,7 @@ const { createWatchTogetherRouter, registerWatchTogetherHandlers } = require('./
 const { wtcHandlers } = require('./wtc-handlers');
 const axios = require('axios');
 const watchTogetherRouter = require('./routes/watch-together');
+const { router: streamRouter, shutdown: shutdownStream } = require('./routes/stream-mgnt-uri');
 
 const app = express();
 const server = http.createServer(app);
@@ -56,6 +57,7 @@ app.get('/flix-test/:tmdb_id', async (req, res) => {
 
 app.use('/upload', uploadRouter);
 app.use('/watch-together', watchTogetherRouter);
+app.use('/stream', streamRouter);
 
 const wtcIO = io.of('/wtc');
 
@@ -80,3 +82,18 @@ startServer().catch((error) => {
     console.error('Failed to start server:', error);
     process.exit(1);
 });
+
+// Graceful shutdown — destroy WebTorrent client and clean up temp files
+async function gracefulShutdown(signal) {
+    console.log(`[server] ${signal} received, shutting down...`);
+    await shutdownStream();
+    server.close(() => {
+        console.log('[server] HTTP server closed');
+        process.exit(0);
+    });
+    // Force exit after 10 s if still hanging
+    setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
