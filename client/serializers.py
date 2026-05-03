@@ -6,6 +6,7 @@ from .models import Flixer
 
 class FlixerSerializer(serializers.ModelSerializer):
 	can_create_flix = serializers.SerializerMethodField()
+	with_p2p_stream = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Flixer
@@ -14,12 +15,14 @@ class FlixerSerializer(serializers.ModelSerializer):
 			'email',
 			'username',
 			'can_create_flix',
+			'with_p2p_stream',
 		]
 		read_only_fields = [
 			'id',
 			'email',
 			'username',
 			'can_create_flix',
+			'with_p2p_stream',
 		]
 
 	def get_can_create_flix(self, obj):
@@ -31,6 +34,15 @@ class FlixerSerializer(serializers.ModelSerializer):
 			obj.has_perm('flix.add_moviesubtitle'),
 			obj.has_perm('flix.add_episodesubtitle'),
 		])
+
+	def get_with_p2p_stream(self, obj):
+		return True
+
+	def to_representation(self, instance):
+		data = super().to_representation(instance)
+		if not instance.has_perm('client.p2p_stream'):
+			data.pop('with_p2p_stream', None)
+		return data
 
 class FlixerPublicSerializer(serializers.ModelSerializer):
 	class Meta:
