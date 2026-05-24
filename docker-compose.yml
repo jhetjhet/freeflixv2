@@ -91,12 +91,35 @@ services:
       timeout: 5s
       retries: 5
 
+  torrent_worker:
+    build:
+      context: ./torrent-worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PORT=8081
+      - TORRENT_DOWNLOAD_DIR=/data/webtorrent
+      - MAX_ACTIVE_TORRENTS=${MAX_ACTIVE_TORRENTS:-5}
+      - STREAM_THROTTLE_BYTES=${STREAM_THROTTLE_BYTES:-1048576}
+      - MAX_TORRENT_SIZE_BYTES=${MAX_TORRENT_SIZE_BYTES:-5368709120}
+      - P2P_TRACKERS=${P2P_TRACKERS}
+    volumes:
+      - torrent_data:/data/webtorrent
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1500M
+
   web-server: # for RFC 1034 / 1035 compliant hostname resolution
     image: nginx
     restart: unless-stopped
     depends_on:
       - backend
       - node_backend
+      - torrent_worker
       - frontend
     volumes:
       - ./nginx-server/includes:/etc/nginx/includes
@@ -108,3 +131,4 @@ services:
 volumes:
   freeflix_mysql_data:
   freeflix_redis_data:
+  torrent_data:
