@@ -325,3 +325,33 @@ class SeriesSerializer(serializers.ModelSerializer):
 			genre_obj, _ = Genre.objects.get_or_create(**genre)
 			series.genres.add(genre_obj)
 		return series
+
+
+class RecentlyWatchedSeriesSerializer(SeriesSerializer):
+	recent_watch = serializers.SerializerMethodField()
+
+	class Meta(SeriesSerializer.Meta):
+		fields = SeriesSerializer.Meta.fields + ['recent_watch']
+
+	def get_recent_watch(self, obj):
+		progress = getattr(obj, '_recent_progress', None)
+		episode = getattr(obj, '_recent_episode', None)
+		if not progress or not episode:
+			return None
+
+		from progress.serializers import ProgressEmbedSerializer
+
+		return {
+			'episode': {
+				'id': episode.id,
+				'tmdb_id': episode.tmdb_id,
+				'episode_number': episode.episode_number,
+				'title': episode.title,
+				'season': {
+					'id': episode.season.id,
+					'season_number': episode.season.season_number,
+					'title': episode.season.title,
+				},
+			},
+			'progress': ProgressEmbedSerializer(progress).data,
+		}

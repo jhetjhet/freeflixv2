@@ -6,6 +6,9 @@ from .views import (
 	EpisodeSubtitleList,
 	GenreList,
 	MixFlixList,
+	RecentlyWatchedAllList,
+	RecentlyWatchedMovieList,
+	RecentlyWatchedSeriesList,
 	MovieList, 
 	MovieDetail,
 	MovieSubtitleDetail,
@@ -22,13 +25,16 @@ urlpatterns = [
 	path('genre/list/', GenreList.as_view()),
 
 	path('all/', MixFlixList.as_view()),
+	path('all/recently_watched/', RecentlyWatchedAllList.as_view()),
 
 	path('movie/', MovieList.as_view()),
+	path('movie/recently_watched/', RecentlyWatchedMovieList.as_view()),
 	path('movie/<tmdb_id>/', MovieDetail.as_view()),
 	path('movie/<tmdb_id>/subtitles/', MovieSubtitleList.as_view()),
 	path('movie/<tmdb_id>/subtitles/<subtitle_id>/', MovieSubtitleDetail.as_view()),
 
 	path('series/', SeriesList.as_view()),
+	path('series/recently_watched/', RecentlyWatchedSeriesList.as_view()),
 	path('series/<series_tmdb_id>/', SeriesDetail.as_view()),
 	path('series/<series_tmdb_id>/season/', SeasonList.as_view()),
 	path('series/<series_tmdb_id>/season/<season_number>/', SeasonDetail.as_view()),
